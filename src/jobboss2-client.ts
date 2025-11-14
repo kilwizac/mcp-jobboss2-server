@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
-export interface JobBOSS2Config {
+interface JobBOSS2Config {
   apiUrl: string;
   apiKey: string;
   apiSecret: string;
@@ -15,7 +15,7 @@ interface OAuthTokenResponse {
 }
 
 // Query parameters for API requests
-export interface QueryParams {
+interface QueryParams {
   fields?: string;
   sort?: string;
   skip?: number;
@@ -24,40 +24,275 @@ export interface QueryParams {
 }
 
 // Order interfaces
-export interface Order {
-  orderNumber: string;
-  customerCode: string;
-  customerDescription?: string;
-  dateEntered?: string;
-  dueDate?: string;
-  lastModDate?: string;
-  orderTotal?: number;
-  orderTotalForeign?: number;
-  PONumber?: string;
-  salesID?: string;
-  status?: string;
-  termsCode?: string;
-  territory?: string;
+interface Order {
+  ackPrinted?: boolean;
+  addCustomerFromQuote?: boolean;
+  allowExpiredQuoteItems?: boolean;
+  country?: string | null;
+  currencyCode?: string | null;
+  customerCode?: string | null;
+  customerDescription?: string | null;
+  dateEntered?: string | null;
+  dateEnteredLabel?: string | null;
+  dueDate?: string | null;
+  enteredBy?: string | null;
+  exchangeRate?: number | null;
+  fax?: string | null;
+  GSTCode?: string | null;
+  holdUntilAccountIsCurrent?: boolean;
+  JTPrinted?: boolean;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  location?: string | null;
+  mainDueDate?: string | null;
+  mainPriority?: number | null;
+  markCustomerActive?: boolean;
+  notesToCustomer?: string | null;
+  orderNumber?: string | null;
+  orderTotal?: number | null;
+  orderTotalForeign?: number | null;
+  phone?: string | null;
+  PONumber?: string | null;
+  purchasingContact?: string | null;
+  quoteNumber?: string | null;
+  salesID?: string | null;
+  saveOnDuplicateCustomerPONumber?: boolean;
+  shippingAddress1?: string | null;
+  shippingCity?: string | null;
+  shippingCode?: string | null;
+  shippingState?: string | null;
+  shipToName?: string | null;
+  shipVia?: string | null;
+  shipZIP?: string | null;
+  status?: string | null;
+  taxCode?: string | null;
+  termsCode?: string | null;
+  territory?: string | null;
   uniqueID?: number;
-  [key: string]: any; // For additional fields
+  user_Currency1?: number | null;
+  user_Currency2?: number | null;
+  user_Date1?: string | null;
+  user_Date2?: string | null;
+  user_Memo1?: string | null;
+  user_Number1?: number | null;
+  user_Number2?: number | null;
+  user_Number3?: number | null;
+  user_Number4?: number | null;
+  user_Text1?: string | null;
+  user_Text2?: string | null;
+  user_Text3?: string | null;
+  user_Text4?: string | null;
+  WOPrinted?: boolean;
 }
 
 // Order Line Item interfaces
-export interface OrderLineItem {
-  itemNumber: number;
-  orderNumber: string;
-  partNumber?: string;
-  description?: string;
-  quantity?: number;
-  price?: number;
-  dueDate?: string;
-  status?: string;
+interface OrderLineItem {
+  actualEndDate?: string | null;
+  actualStartDate?: string | null;
+  billingRate?: number | null;
+  commissionPercent?: number | null;
+  cumulativeBilling?: number | null;
+  currentWorkCenter?: string | null;
+  dateFinished?: string | null;
+  discountPercent?: number | null;
+  dueDate?: string | null;
+  estimatedEndDate?: string | null;
+  estimatedStartDate?: string | null;
+  FOB?: string | null;
+  isJobLabelPrinted?: boolean;
+  isScheduled?: boolean;
+  isTaxable?: boolean;
+  itemNumber?: number | null;
+  jobNotes?: string | null;
+  jobNumber?: string | null;
+  jobOnHold?: boolean;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  masterJobNumber?: string | null;
+  masterStepNumber?: number | null;
+  miscCharges?: number | null;
+  miscChargesBilled?: boolean;
+  miscChargesForeign?: number | null;
+  miscDescription?: string | null;
+  orderNumber?: string | null;
+  overlapSteps?: boolean;
+  partDescription?: string | null;
+  partNumber?: string | null;
+  pricingUnit?: string | null;
+  priority?: number | null;
+  productCode?: string | null;
+  quantityCanceled?: number | null;
+  quantityOrdered?: number | null;
+  quantityShippedToCustomer?: number | null;
+  quantityShippedToStock?: number | null;
+  quantityToMake?: number | null;
+  quantityToStock?: number | null;
+  quoteItemNumber?: number | null;
+  quoteNumber?: string | null;
+  revision?: string | null;
+  scheduleLocked?: boolean;
+  status?: string | null;
+  tempPriority?: number | null;
+  totalActualHours?: number | null;
+  totalEstimatedHours?: number | null;
+  travelerPrinted?: boolean;
   uniqueID?: number;
+  unitPrice?: number | null;
+  unitPriceForeign?: number | null;
+  user_Currency1?: number | null;
+  user_Currency2?: number | null;
+  user_Date1?: string | null;
+  user_Date2?: string | null;
+  user_Memo1?: string | null;
+  user_Number1?: number | null;
+  user_Number2?: number | null;
+  user_Number3?: number | null;
+  user_Number4?: number | null;
+  user_Text1?: string | null;
+  user_Text2?: string | null;
+  user_Text3?: string | null;
+  user_Text4?: string | null;
+  workCode?: string | null;
+  [key: string]: any;
+}
+
+interface OrderLineItemUpdate {
+  user_Currency1?: number | null;
+  user_Currency2?: number | null;
+  user_Date1?: string | null;
+  user_Date2?: string | null;
+  user_Memo1?: string | null;
+  user_Number1?: number | null;
+  user_Number2?: number | null;
+  user_Number3?: number | null;
+  user_Number4?: number | null;
+  user_Text1?: string | null;
+  user_Text2?: string | null;
+  user_Text3?: string | null;
+  user_Text4?: string | null;
+  [key: string]: any;
+}
+
+interface OrderRouting {
+  actualEndDate?: string | null;
+  actualPiecesGood?: number | null;
+  actualPiecesScrap?: number | null;
+  actualStartDate?: string | null;
+  burdenRate?: number | null;
+  certificationRequired?: boolean;
+  cost1?: number | null;
+  cost2?: number | null;
+  cost3?: number | null;
+  cost4?: number | null;
+  cost5?: number | null;
+  cost6?: number | null;
+  cost7?: number | null;
+  cost8?: number | null;
+  cyclePrice?: number | null;
+  cycleRate?: number | null;
+  cycleTime?: number | null;
+  cycleUnit?: string | null;
+  departmentNumber?: string | null;
+  description?: string | null;
+  employeeCode?: string | null;
+  estimatedEndDate?: string | null;
+  estimatedQuantity?: number | null;
+  estimatedStartDate?: string | null;
+  GLCode?: string | null;
+  ignoreVendorMinimum?: boolean;
+  itemNumber?: number | null;
+  jobNumber?: string | null;
+  laborAccount?: string | null;
+  laborRate?: number | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  leadTime?: number | null;
+  machinesRun?: number | null;
+  markupPercent?: number | null;
+  numberMachinesForJob?: number | null;
+  operationCode?: string | null;
+  orderNumber?: string | null;
+  overlapSteps?: boolean;
+  partNumber?: string | null;
+  percentEfficient?: number | null;
+  scrapPercent?: number | null;
+  setup1?: number | null;
+  setup2?: number | null;
+  setup3?: number | null;
+  setup4?: number | null;
+  setup5?: number | null;
+  setup6?: number | null;
+  setup7?: number | null;
+  setup8?: number | null;
+  setupPrice?: number | null;
+  setupRate?: number | null;
+  setupTime?: number | null;
+  shift2DefaultEmployeeCode?: string | null;
+  shift3DefaultEmployeeCode?: string | null;
+  status?: string | null;
+  stepNumber?: number | null;
+  teamSize?: number | null;
+  tempEstimatedEndDate?: string | null;
+  tempEstimatedStartDate?: string | null;
+  timeUnit?: string | null;
+  total?: number | null;
+  totalActualHours?: number | null;
+  totalEstimatedHours?: number | null;
+  totalHoursLeft?: number | null;
+  unattendedOperation?: boolean;
+  uniqueID?: number;
+  unit1?: string | null;
+  unit2?: string | null;
+  unit3?: string | null;
+  unit4?: string | null;
+  unit5?: string | null;
+  unit6?: string | null;
+  unit7?: string | null;
+  unit8?: string | null;
+  vendorCode?: string | null;
+  workCenter?: string | null;
+  workCenterOrVendor?: string | null;
+  [key: string]: any;
+}
+
+interface OrderRoutingCreate {
+  certificationRequired?: boolean;
+  cyclePrice?: number | null;
+  cycleTime?: number | null;
+  cycleUnit?: string | null;
+  departmentNumber?: string | null;
+  description?: string | null;
+  employeeCode?: string | null;
+  estimatedEndDate?: string | null;
+  estimatedQuantity?: number | null;
+  estimatedStartDate?: string | null;
+  ignoreVendorMinimum?: boolean;
+  operationCode?: string | null;
+  overlapSteps?: boolean;
+  setupPrice?: number | null;
+  setupTime?: number | null;
+  shift2DefaultEmployeeCode?: string | null;
+  shift3DefaultEmployeeCode?: string | null;
+  stepNumber?: number | null;
+  timeUnit?: string | null;
+  total?: number | null;
+  vendorCode?: string | null;
+  workCenter?: string | null;
+  workCenterOrVendor: string;
+  [key: string]: any;
+}
+
+interface OrderRoutingUpdate {
+  operationCode?: string | null;
+  employeeCode?: string | null;
+  estimatedEndDate?: string | null;
+  estimatedStartDate?: string | null;
+  workCenter?: string | null;
   [key: string]: any;
 }
 
 // Customer interfaces
-export interface Customer {
+interface Customer {
   customerCode: string;
   customerName: string;
   active?: boolean;
@@ -77,7 +312,7 @@ export interface Customer {
 }
 
 // Quote interfaces
-export interface Quote {
+interface Quote {
   quoteNumber: string;
   customerCode: string;
   dateEntered?: string;
@@ -89,31 +324,67 @@ export interface Quote {
   [key: string]: any;
 }
 
-// Quote Line Item interfaces
-export interface QuoteLineItem {
-  itemNumber: number;
-  quoteNumber: string;
-  partNumber?: string;
-  description?: string;
-  quantity?: number;
-  price1?: number;
+// Bin Location interfaces
+interface BinLocation {
+  binLocation?: string | null;
+  cost?: number | null;
+  datePosted?: string | null;
+  deliveryTicketNumber?: string | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  lotNumber?: string | null;
+  partNumber?: string | null;
+  POItemNumber?: number | null;
+  quantityOnHand?: number | null;
+  receiverNumber?: string | null;
   uniqueID?: number;
+  vendorCode?: string | null;
   [key: string]: any;
 }
 
 // Material interfaces
-export interface Material {
-  partNumber: string;
-  description?: string;
-  quantityOnHand?: number;
-  unitCost?: number;
-  productCode?: string;
+interface Material {
+  description?: string | null;
+  enteredDate?: string | null;
+  isPurchased?: boolean;
+  itemNumber?: number | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  materialDetailID?: string | null;
+  partNumber?: string | null;
+  partWeight?: number | null;
+  quantity?: number | null;
+  revisedDate?: string | null;
+  stepNumber?: number | null;
+  subPartNumber?: string | null;
+  totalCost?: number | null;
+  totalPrice?: number | null;
+  totalQuantity?: number | null;
+  totalWeight?: number | null;
   uniqueID?: number;
+  unit?: string | null;
+  unitCost?: number | null;
+  unitPrice?: number | null;
+  vendor?: string | null;
+  [key: string]: any;
+}
+
+interface MaterialCreate {
+  description?: string | null;
+  materialDetailID?: string | null;
+  partWeight?: number | null;
+  quantity?: number | null;
+  stepNumber?: number | null;
+  subPartNumber: string;
+  unit?: string | null;
+  unitCost?: number | null;
+  unitPrice?: number | null;
+  vendor?: string | null;
   [key: string]: any;
 }
 
 // Employee interfaces
-export interface Employee {
+interface Employee {
   employeeID: string;
   name?: string;
   departmentID?: string;
@@ -123,57 +394,660 @@ export interface Employee {
 }
 
 // Estimate interfaces (Part Master)
-export interface Estimate {
-  partNumber: string;
-  description?: string;
+interface Estimate {
+  accountingID?: string | null;
   active?: boolean;
-  alternatePartNumber?: string;
-  calculationMethod?: string;
-  customerCode?: string;
-  GLCode?: string;
-  leadTime?: number;
-  productCode?: string;
-  purchaseFactor?: number;
-  purchasingGLCode?: string;
-  purchasingUnit?: string;
-  pricingUnit?: string;
-  revision?: string;
-  stockingCost?: number;
-  partWeight?: number;
+  alternatePartNumber?: string | null;
+  billingRate?: number | null;
+  bin1Lot?: string | null;
+  bin2Lot?: string | null;
+  bin3Lot?: string | null;
+  bin4Lot?: string | null;
+  bin5Lot?: string | null;
+  binLocation1?: string | null;
+  binLocation2?: string | null;
+  binLocation3?: string | null;
+  binLocation4?: string | null;
+  binLocation5?: string | null;
+  binQuantity1?: number | null;
+  binQuantity2?: number | null;
+  binQuantity3?: number | null;
+  binQuantity4?: number | null;
+  binQuantity5?: number | null;
+  calculationMethod?: string | null;
+  comments?: string | null;
+  commissionPercent?: number | null;
+  customerCode?: string | null;
+  defaultBinLocation?: string | null;
+  description?: string | null;
+  drawingFileName?: string | null;
+  drawingNumber?: string | null;
+  enteredBy?: string | null;
+  enteredDate?: string | null;
+  GLCode?: string | null;
+  imageRepositoryID?: number | null;
+  inspectCustomerReturns?: boolean | null;
+  inspectInternalRejections?: boolean | null;
+  inspectOrders?: boolean | null;
+  inspectReceivers?: boolean | null;
+  isTaxable?: boolean;
+  lastDeliveryTicketDate?: string | null;
+  lastDeliveryTicketNumber?: string | null;
+  lastDeliveryTicketQuantity?: number | null;
+  lastJobDate?: string | null;
+  lastJobDateFinished?: string | null;
+  lastJobNumber?: string | null;
+  lastJobPrice?: number | null;
+  lastJobQuantity?: number | null;
+  lastJobQuoteNumber?: string | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  lastPriceChange?: string | null;
+  lastPurchaseOrderCost?: number | null;
+  lastPurchaseOrderDate?: string | null;
+  lastPurchaseOrderNumber?: string | null;
+  lastPurchaseOrderQuantity?: number | null;
+  leadTime?: number | null;
+  lockPrice?: boolean;
+  markup1?: number | null;
+  markup2?: number | null;
+  markup3?: number | null;
+  markup4?: number | null;
+  markup5?: number | null;
+  markup6?: number | null;
+  markup7?: number | null;
+  markup8?: number | null;
+  markupPercent?: number | null;
+  matchQuantityBreaks?: boolean;
+  miscCharge?: number | null;
+  miscDescription?: string | null;
+  partNumber?: string | null;
+  partWeight?: number | null;
+  price1?: number | null;
+  price2?: number | null;
+  price3?: number | null;
+  price4?: number | null;
+  price5?: number | null;
+  price6?: number | null;
+  price7?: number | null;
+  price8?: number | null;
+  pricingUnit?: string | null;
+  printed?: boolean;
+  productCode?: string | null;
+  purchaseCost1?: number | null;
+  purchaseCost2?: number | null;
+  purchaseCost3?: number | null;
+  purchaseCost4?: number | null;
+  purchaseCost5?: number | null;
+  purchaseCost6?: number | null;
+  purchaseCost7?: number | null;
+  purchaseCost8?: number | null;
+  purchaseFactor?: number | null;
+  purchaseQuantity1?: number | null;
+  purchaseQuantity2?: number | null;
+  purchaseQuantity3?: number | null;
+  purchaseQuantity4?: number | null;
+  purchaseQuantity5?: number | null;
+  purchaseQuantity6?: number | null;
+  purchaseQuantity7?: number | null;
+  purchaseQuantity8?: number | null;
+  purchasingGLCode?: string | null;
+  purchasingUnit?: string | null;
+  QBItemType?: string | null;
+  quantity1?: number | null;
+  quantity2?: number | null;
+  quantity3?: number | null;
+  quantity4?: number | null;
+  quantity5?: number | null;
+  quantity6?: number | null;
+  quantity7?: number | null;
+  quantity8?: number | null;
+  quantityOnHand?: string | null;
+  quantityOnOrder?: number | null;
+  quantityOutside?: number | null;
+  reOrderLevel?: number | null;
+  reOrderQuantity?: number | null;
+  revisedDate?: string | null;
+  revision?: string | null;
+  revisionDate?: string | null;
+  routeDate?: string | null;
+  routeEmployee?: string | null;
+  stockingCost?: number | null;
+  stockUnit?: string | null;
   uniqueID?: number;
-  materials?: MaterialCreate[];
-  routings?: RoutingCreate[];
+  useDefaultQuantities?: boolean;
+  user_Currency1?: number | null;
+  user_Currency2?: number | null;
+  user_Date1?: string | null;
+  user_Date2?: string | null;
+  user_Memo1?: string | null;
+  user_Number1?: number | null;
+  user_Number2?: number | null;
+  user_Number3?: number | null;
+  user_Number4?: number | null;
+  user_Text1?: string | null;
+  user_Text2?: string | null;
+  user_Text3?: string | null;
+  user_Text4?: string | null;
+  vendorCode1?: string | null;
+  vendorCode2?: string | null;
+  vendorCode3?: string | null;
+  materials?: MaterialCreate[] | null;
+  routings?: RoutingCreate[] | null;
   [key: string]: any;
 }
 
-export interface MaterialCreate {
-  subPartNumber: string;
-  description?: string;
-  materialDetailID?: string;
-  partWeight?: number;
-  quantity?: number;
-  stepNumber?: number;
-  unit?: string;
-  unitCost?: number;
-  unitPrice?: number;
-  vendor?: string;
+interface DocumentControl {
+  approvalComments?: string | null;
+  approvalDate?: string | null;
+  approvedBy?: string | null;
+  dateEntered?: string | null;
+  description?: string | null;
+  documentDate?: string | null;
+  documentNumber?: string | null;
+  documentStatus?: string | null;
+  documentType?: string | null;
+  enteredBy?: string | null;
+  fileLocation?: string | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  printed?: boolean | null;
+  proposalComments?: string | null;
+  proposalDate?: string | null;
+  proposedBy?: string | null;
+  releaseComments?: string | null;
+  releaseDate?: string | null;
+  releasedBy?: string | null;
+  repositoryID?: string | null;
+  retiredBy?: string | null;
+  retirementComments?: string | null;
+  retirementDate?: string | null;
+  revision?: string | null;
+  revisionDate?: string | null;
+  uniqueID?: number | null;
+  [key: string]: any;
 }
 
-export interface RoutingCreate {
-  stepNumber: number;
-  cycleTime?: number;
-  cycleUnit?: string;
-  description?: string;
-  operatorCode?: string;
-  setupTime?: number;
-  timeUnit?: string;
-  vendorCode?: string;
-  workCenter?: string;
-  workOrVendor?: string;
+interface DocumentHistory {
+  comments?: string | null;
+  documentNumber?: string | null;
+  fileLocation?: string | null;
+  repositoryID?: string | null;
+  revision?: string | null;
+  revisionDate?: string | null;
+  spunOffFile?: string | null;
+  uniqueID?: number | null;
+  updatedJobs?: string | null;
+  updatedParts?: string | null;
+  userID?: string | null;
+  [key: string]: any;
 }
+
+interface DocumentReviewRecord {
+  completed?: boolean | null;
+  cost?: number | null;
+  description?: string | null;
+  documentNumber?: string | null;
+  employeeCode?: string | null;
+  endDate?: string | null;
+  invoiceNumber?: string | null;
+  jobNumber?: string | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  reviewCode?: string | null;
+  startDate?: string | null;
+  uniqueID?: number | null;
+  vendorCode?: string | null;
+  [key: string]: any;
+}
+
+interface JobMaterial {
+  binLocation1?: string | null;
+  binLocation2?: string | null;
+  binLocation3?: string | null;
+  binLocation4?: string | null;
+  binLocation5?: string | null;
+  binLocationCounter?: number | null;
+  datePosted?: string | null;
+  description?: string | null;
+  GLCode?: string | null;
+  jobNumber?: string | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  lotNumber1?: string | null;
+  lotNumber2?: string | null;
+  lotNumber3?: string | null;
+  lotNumber4?: string | null;
+  lotNumber5?: string | null;
+  mainPart?: boolean | null;
+  manufacturingJobNumber?: string | null;
+  orderNumber?: string | null;
+  originalBinCost?: number | null;
+  outsideService?: boolean | null;
+  packingListDate?: string | null;
+  packingListNumber?: string | null;
+  partNumber?: string | null;
+  PODate?: string | null;
+  POItemNumber?: number | null;
+  PONumber?: string | null;
+  postedBy?: string | null;
+  postedFromStock?: boolean | null;
+  pricingUnit?: string | null;
+  productCode?: string | null;
+  quantityPosted1?: number | null;
+  quantityPosted2?: number | null;
+  quantityPosted3?: number | null;
+  quantityPosted4?: number | null;
+  quantityPosted5?: number | null;
+  receiverDate?: string | null;
+  receiverNumber?: string | null;
+  resalePrice?: number | null;
+  stepNumber?: number | null;
+  stockingCost?: number | null;
+  stockUnit?: string | null;
+  subAssemblyJobNumber?: string | null;
+  uniqueID?: number | null;
+  vendorCode?: string | null;
+  vendorInvoiceNumber?: string | null;
+  vendorType?: string | null;
+  [key: string]: any;
+}
+
+interface JobRequirement {
+  certificationRequired?: boolean | null;
+  cost?: number | null;
+  dateProcessed?: string | null;
+  GLCode?: string | null;
+  jobDue?: string | null;
+  jobNumber?: string | null;
+  uniqueID?: number | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  leadTime?: number | null;
+  orderNumber?: string | null;
+  outsideService?: boolean | null;
+  partDescription?: string | null;
+  partNumber?: string | null;
+  PODate?: string | null;
+  POItemNumber?: number | null;
+  PONumber?: string | null;
+  price?: number | null;
+  pricingUnit?: string | null;
+  productCode?: string | null;
+  purchaseQuantity?: number | null;
+  purchaseUnit?: string | null;
+  quantityToBuy?: number | null;
+  setupCharge?: number | null;
+  stepNumber?: number | null;
+  stockingUnit?: string | null;
+  temporaryJobDue?: string | null;
+  vendorCode?: string | null;
+  workCode?: string | null;
+  [key: string]: any;
+}
+
+interface PackingListLineItem {
+  accountingID?: string | null;
+  contactName?: string | null;
+  containerNumber?: string | null;
+  customerPONumber?: string | null;
+  deliveryTicketItemNumber?: string | null;
+  deliveryTicketNumber?: string | null;
+  isTaxable?: boolean | null;
+  jobNumber?: string | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  masterJobNumber?: string | null;
+  partDescription?: string | null;
+  partNumber?: string | null;
+  partWeight?: number | null;
+  quantityFromStock?: number | null;
+  quantityOpen?: number | null;
+  quantityToCancel?: number | null;
+  quantityToShip?: number | null;
+  quantityToStock?: number | null;
+  revision?: string | null;
+  uniqueID?: number | null;
+  unit?: string | null;
+  [key: string]: any;
+}
+
+interface PackingList {
+  accountingID?: string | null;
+  autoBill?: boolean | null;
+  certificatePrinted?: boolean | null;
+  CODAmount?: number | null;
+  CODAmountPrepaid?: boolean | null;
+  CODFee?: number | null;
+  CODFeePrepaid?: boolean | null;
+  containerOption?: number | null;
+  containerUnit?: string | null;
+  containerWeight?: number | null;
+  country?: string | null;
+  customerCode?: string | null;
+  customerDescription?: string | null;
+  customerPONumber?: string | null;
+  dateEntered?: string | null;
+  deliveryTicketNumber?: string | null;
+  descriptionOfContents?: string | null;
+  enteredBy?: string | null;
+  exported?: boolean | null;
+  exportedToEDI?: boolean | null;
+  freightCharge?: number | null;
+  freightChargePrepaid?: boolean | null;
+  freightTerms?: string | null;
+  freightVendorCode?: string | null;
+  handlingCharge?: number | null;
+  isProcessed?: number | null;
+  isShipmentFromSystem?: boolean | null;
+  labelPrinted?: boolean | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  location?: string | null;
+  notesToCustomer?: string | null;
+  numberOfContainers?: number | null;
+  orderNumber?: string | null;
+  packingListPrinted?: boolean | null;
+  remitAddress1?: string | null;
+  remitCity?: string | null;
+  remitCountry?: string | null;
+  remitName?: string | null;
+  remitStreet?: string | null;
+  remitZIP?: string | null;
+  shippingAddress1?: string | null;
+  shippingCharges?: number | null;
+  shippingCity?: string | null;
+  shippingCode?: string | null;
+  shippingDate?: string | null;
+  shippingStreet?: string | null;
+  shippingToName?: string | null;
+  shippingVia?: string | null;
+  shippingZIP?: string | null;
+  specialInstructions?: string | null;
+  status?: string | null;
+  uniqueID?: number | null;
+  vendorDescription?: string | null;
+  weightOfParts?: number | null;
+  [key: string]: any;
+}
+
+interface ProductCode {
+  active?: boolean | null;
+  ARAccount?: string | null;
+  cashDiscount?: string | null;
+  description?: string | null;
+  enteredDate?: string | null;
+  freightAccount?: string | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  productCode?: string | null;
+  salesAccount?: string | null;
+  uniqueID?: number | null;
+  [key: string]: any;
+}
+
+interface PurchaseOrderLineItem {
+  comments?: string | null;
+  dateFinished?: string | null;
+  dueDate?: string | null;
+  FOB?: string | null;
+  GLCode?: string | null;
+  itemNumber?: number | null;
+  jobNumber?: string | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  outsideService?: boolean | null;
+  partDescription?: string | null;
+  partNumber?: string | null;
+  purchaseOrderNumber?: string | null;
+  quantityCanceled?: number | null;
+  quantityOrdered?: number | null;
+  quantityReceived?: number | null;
+  quantityRejected?: number | null;
+  revision?: string | null;
+  status?: string | null;
+  stepNumber?: number | null;
+  uniqueID?: number | null;
+  unit?: string | null;
+  unitCost?: number | null;
+  unitCostForeign?: number | null;
+  [key: string]: any;
+}
+
+interface PurchaseOrderRelease {
+  comments?: string | null;
+  dateReceived?: string | null;
+  dueDate?: string | null;
+  itemNumber?: number | null;
+  jobNumber?: string | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  partNumber?: string | null;
+  PONumber?: string | null;
+  quantity?: number | null;
+  quantityCanceled?: number | null;
+  quantityRejected?: number | null;
+  receiverNumber?: string | null;
+  uniqueID?: number | null;
+  [key: string]: any;
+}
+
+interface PurchaseOrder {
+  contact?: string | null;
+  currencyCode?: string | null;
+  dateComplete?: string | null;
+  dateEntered?: string | null;
+  dateRequired?: string | null;
+  enteredBy?: string | null;
+  exchangeRate?: number | null;
+  fax?: string | null;
+  GSTCharges?: number | null;
+  GSTCode?: string | null;
+  ignoreMinimumOrder?: boolean | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  notesToVendor?: string | null;
+  phone?: string | null;
+  PONumber?: string | null;
+  POTotal?: number | null;
+  POTotalForeign?: number | null;
+  purchasedBy?: string | null;
+  shipCode?: string | null;
+  shippingAddress1?: string | null;
+  shippingCity?: string | null;
+  shippingCountry?: string | null;
+  shippingStreet?: string | null;
+  shippingZip?: string | null;
+  shipToName?: string | null;
+  shipVia?: string | null;
+  status?: string | null;
+  termsCode?: string | null;
+  uniqueID?: number | null;
+  vendorCode?: string | null;
+  vendorDescription?: string | null;
+  vendorQuoteNumber?: string | null;
+  vendorType?: string | null;
+  [key: string]: any;
+}
+
+interface QuoteLineItem {
+  commissionPercent?: number | null;
+  delivery?: string | null;
+  description?: string | null;
+  discountPercent?: number | null;
+  FOB?: string | null;
+  isTaxable?: boolean | null;
+  itemNumber?: number | null;
+  jobNotes?: string | null;
+  jobNumber?: string | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  miscCharge?: number | null;
+  miscChargeForeign?: number | null;
+  miscDescription?: string | null;
+  partNumber?: string | null;
+  price1?: number | null;
+  price2?: number | null;
+  price3?: number | null;
+  price4?: number | null;
+  price5?: number | null;
+  price6?: number | null;
+  price7?: number | null;
+  price8?: number | null;
+  priceForeign1?: number | null;
+  priceForeign2?: number | null;
+  priceForeign3?: number | null;
+  priceForeign4?: number | null;
+  priceForeign5?: number | null;
+  priceForeign6?: number | null;
+  priceForeign7?: number | null;
+  priceForeign8?: number | null;
+  quantity1?: number | null;
+  quantity2?: number | null;
+  quantity3?: number | null;
+  quantity4?: number | null;
+  quantity5?: number | null;
+  quantity6?: number | null;
+  quantity7?: number | null;
+  quantity8?: number | null;
+  quoteNumber?: string | null;
+  quotePart?: string | null;
+  revision?: string | null;
+  status?: string | null;
+  uniqueID?: number | null;
+  unit1?: string | null;
+  unit2?: string | null;
+  unit3?: string | null;
+  unit4?: string | null;
+  unit5?: string | null;
+  unit6?: string | null;
+  unit7?: string | null;
+  unit8?: string | null;
+  workCode?: string | null;
+  [key: string]: any;
+}
+
+interface ReportSubmissionResult {
+  requestId?: string;
+  status?: string;
+  [key: string]: any;
+}
+
+interface Salesperson {
+  active?: boolean | null;
+  address1?: string | null;
+  city?: string | null;
+  commissionAccount?: string | null;
+  commissionPercent?: number | null;
+  country?: string | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  name?: string | null;
+  phone?: string | null;
+  salesID?: string | null;
+  state?: string | null;
+  uniqueID?: number | null;
+  YTDCommission?: number | null;
+  YTDSales?: number | null;
+  zipCode?: string | null;
+  [key: string]: any;
+}
+
+interface TimeTicketDetail {
+  actualPayRate?: number | null;
+  billingRate?: number | null;
+  comments?: string | null;
+  cycleTime?: number | null;
+  employeeCode?: number | null;
+  employeeName?: string | null;
+  jobNumber?: string | null;
+  machineHours?: number | null;
+  machinesRun?: number | null;
+  manHours?: number | null;
+  numberMachinesForJob?: number | null;
+  operationNumber?: string | null;
+  payrollRate?: number | null;
+  piecesFinished?: number | null;
+  piecesScrapped?: number | null;
+  setupTime?: number | null;
+  shift?: number | null;
+  stepNumber?: number | null;
+  ticketDate?: string | null;
+  timeTicketGUID?: string | null;
+  uniqueID?: number | null;
+  workCenter?: string | null;
+  [key: string]: any;
+}
+
+interface TimeTicket {
+  employeeCode?: number | null;
+  employeeName?: string | null;
+  enteredBy?: string | null;
+  enteredDate?: string | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  searchDate?: number | null;
+  ticketDate?: string | null;
+  uniqueID?: number | null;
+  [key: string]: any;
+}
+
+interface Vendor {
+  active?: boolean | null;
+  currencyCode?: string | null;
+  enteredDate?: string | null;
+  federalIDNumber?: string | null;
+  GLAccount1?: string | null;
+  lastModDate?: string | null;
+  leadTime?: number | null;
+  termsCode?: string | null;
+  uniqueID?: number | null;
+  vendorAccountNumber?: string | null;
+  vendorCode?: string | null;
+  vendorName?: string | null;
+  vendorType?: string | null;
+  [key: string]: any;
+}
+
+interface WorkCenter {
+  active?: boolean | null;
+  attendanceCode?: string | null;
+  burdenRate?: number | null;
+  capacityFactor?: number | null;
+  comments?: string | null;
+  departmentNumber?: string | null;
+  description?: string | null;
+  laborAccount?: string | null;
+  laborRate?: number | null;
+  lastModDate?: string | null;
+  lastModUser?: string | null;
+  operationCode?: string | null;
+  queueTime?: number | null;
+  queueUnit?: string | null;
+  shortName?: string | null;
+  uniqueID?: number | null;
+  workCenter?: string | null;
+  [key: string]: any;
+}
+
+interface RoutingCreate {
+  cycleTime?: number | null;
+  cycleUnit?: string | null;
+  description?: string | null;
+  operatorCode?: string | null;
+  setupTime?: number | null;
+  stepNumber?: number | null;
+  timeUnit?: string | null;
+  vendorCode?: string | null;
+  workCenter?: string | null;
+  workOrVendor?: string | null;
+  [key: string]: any;
+}
+
+
 
 // Attendance Ticket interfaces
-export interface AttendanceTicket {
+interface AttendanceTicket {
   employeeCode: number;
   ticketDate: string;
   employeeName?: string;
@@ -187,7 +1061,7 @@ export interface AttendanceTicket {
   [key: string]: any;
 }
 
-export interface AttendanceTicketDetail {
+interface AttendanceTicketDetail {
   uniqueID?: number;
   employeeCode?: number;
   employeeName?: string;
@@ -360,8 +1234,51 @@ export class JobBOSS2Client {
     return this.extractData(response);
   }
 
-  async updateOrderLineItem(orderNumber: string, itemNumber: number, itemData: Partial<OrderLineItem>): Promise<OrderLineItem> {
+  async updateOrderLineItem(
+    orderNumber: string,
+    itemNumber: number,
+    itemData: Partial<OrderLineItemUpdate>
+  ): Promise<OrderLineItem> {
     const response = await this.client.patch(`/api/v1/orders/${orderNumber}/order-line-items/${itemNumber}`, itemData);
+    return this.extractData(response);
+  }
+
+  async getOrderRoutings(params?: QueryParams): Promise<OrderRouting[]> {
+    const response = await this.client.get('/api/v1/order-routings', { params });
+    return this.extractData(response);
+  }
+
+  async getOrderRouting(
+    orderNumber: string,
+    itemNumber: number,
+    stepNumber: number,
+    params?: QueryParams
+  ): Promise<OrderRouting> {
+    const response = await this.client.get(
+      `/api/v1/orders/${orderNumber}/order-line-items/${itemNumber}/order-routings/${stepNumber}`,
+      { params }
+    );
+    return this.extractData(response);
+  }
+
+  async createOrderRouting(orderNumber: string, itemNumber: number, routingData: OrderRoutingCreate): Promise<OrderRouting> {
+    const response = await this.client.post(
+      `/api/v1/orders/${orderNumber}/order-line-items/${itemNumber}/order-routings`,
+      routingData
+    );
+    return this.extractData(response);
+  }
+
+  async updateOrderRouting(
+    orderNumber: string,
+    itemNumber: number,
+    stepNumber: number,
+    routingData: Partial<OrderRoutingUpdate>
+  ): Promise<OrderRouting> {
+    const response = await this.client.patch(
+      `/api/v1/orders/${orderNumber}/order-line-items/${itemNumber}/order-routings/${stepNumber}`,
+      routingData
+    );
     return this.extractData(response);
   }
 
@@ -407,17 +1324,6 @@ export class JobBOSS2Client {
     return this.extractData(response);
   }
 
-  // Quote Line Item Operations
-  async getQuoteLineItems(quoteNumber: string, params?: QueryParams): Promise<QuoteLineItem[]> {
-    const response = await this.client.get(`/api/v1/quotes/${quoteNumber}/quote-line-items`, { params });
-    return this.extractData(response);
-  }
-
-  async getQuoteLineItemById(quoteNumber: string, itemNumber: number, params?: QueryParams): Promise<QuoteLineItem> {
-    const response = await this.client.get(`/api/v1/quotes/${quoteNumber}/quote-line-items/${itemNumber}`, { params });
-    return this.extractData(response);
-  }
-
   // Material Operations
   async getMaterials(params?: QueryParams): Promise<Material[]> {
     const response = await this.client.get('/api/v1/materials', { params });
@@ -429,13 +1335,8 @@ export class JobBOSS2Client {
     return this.extractData(response);
   }
 
-  async createMaterial(materialData: Partial<Material>): Promise<Material> {
-    const response = await this.client.post('/api/v1/materials', materialData);
-    return this.extractData(response);
-  }
-
-  async updateMaterial(partNumber: string, materialData: Partial<Material>): Promise<Material> {
-    const response = await this.client.patch(`/api/v1/materials/${partNumber}`, materialData);
+  async getBinLocations(params?: QueryParams): Promise<BinLocation[]> {
+    const response = await this.client.get('/api/v1/bin-locations', { params });
     return this.extractData(response);
   }
 
@@ -517,6 +1418,201 @@ export class JobBOSS2Client {
     }
 
     const response = await this.client.get('/api/v1/attendance-ticket-details', { params });
+    return this.extractData(response);
+  }
+
+  // Document operations
+  async getDocumentControls(params?: QueryParams): Promise<DocumentControl[]> {
+    const response = await this.client.get('/api/v1/document-controls', { params });
+    return this.extractData(response);
+  }
+
+  async getDocumentHistories(params?: QueryParams): Promise<DocumentHistory[]> {
+    const response = await this.client.get('/api/v1/document-histories', { params });
+    return this.extractData(response);
+  }
+
+  async getDocumentReviews(params?: QueryParams): Promise<DocumentReviewRecord[]> {
+    const response = await this.client.get('/api/v1/document-review', { params });
+    return this.extractData(response);
+  }
+
+  // Job material and requirement operations
+  async getJobMaterials(params?: QueryParams): Promise<JobMaterial[]> {
+    const response = await this.client.get('/api/v1/job-materials', { params });
+    return this.extractData(response);
+  }
+
+  async getJobMaterialById(uniqueID: string, params?: QueryParams): Promise<JobMaterial> {
+    const response = await this.client.get(`/api/v1/job-materials/${uniqueID}`, { params });
+    return this.extractData(response);
+  }
+
+  async getJobRequirements(params?: QueryParams): Promise<JobRequirement[]> {
+    const response = await this.client.get('/api/v1/job-requirements', { params });
+    return this.extractData(response);
+  }
+
+  async getJobRequirementById(uniqueID: string, params?: QueryParams): Promise<JobRequirement> {
+    const response = await this.client.get(`/api/v1/job-requirements/${uniqueID}`, { params });
+    return this.extractData(response);
+  }
+
+  // Packing list operations
+  async getPackingListLineItems(params?: QueryParams): Promise<PackingListLineItem[]> {
+    const response = await this.client.get('/api/v1/packing-list-line-items', { params });
+    return this.extractData(response);
+  }
+
+  async getPackingLists(params?: QueryParams): Promise<PackingList[]> {
+    const response = await this.client.get('/api/v1/packing-lists', { params });
+    return this.extractData(response);
+  }
+
+  // Product code operations
+  async getProductCodes(params?: QueryParams): Promise<ProductCode[]> {
+    const response = await this.client.get('/api/v1/product-codes', { params });
+    return this.extractData(response);
+  }
+
+  async getProductCode(productCode: string, params?: QueryParams): Promise<ProductCode> {
+    const response = await this.client.get(`/api/v1/product-codes/${productCode}`, { params });
+    return this.extractData(response);
+  }
+
+  // Purchase order operations
+  async getPurchaseOrderLineItems(params?: QueryParams): Promise<PurchaseOrderLineItem[]> {
+    const response = await this.client.get('/api/v1/purchase-order-line-items', { params });
+    return this.extractData(response);
+  }
+
+  async getPurchaseOrderLineItem(
+    purchaseOrderNumber: string,
+    partNumber: string,
+    itemNumber: number | string,
+    params?: QueryParams
+  ): Promise<PurchaseOrderLineItem> {
+    const response = await this.client.get(
+      `/api/v1/purchase-order-line-items/${purchaseOrderNumber}/${partNumber}/${itemNumber}`,
+      { params }
+    );
+    return this.extractData(response);
+  }
+
+  async getPurchaseOrderReleases(params?: QueryParams): Promise<PurchaseOrderRelease[]> {
+    const response = await this.client.get('/api/v1/purchase-order-releases', { params });
+    return this.extractData(response);
+  }
+
+  async getPurchaseOrders(params?: QueryParams): Promise<PurchaseOrder[]> {
+    const response = await this.client.get('/api/v1/purchase-orders', { params });
+    return this.extractData(response);
+  }
+
+  async getPurchaseOrderByNumber(poNumber: string, params?: QueryParams): Promise<PurchaseOrder> {
+    const response = await this.client.get(`/api/v1/purchase-orders/${poNumber}`, { params });
+    return this.extractData(response);
+  }
+
+  // Quote line item operations
+  async getQuoteLineItems(params?: QueryParams): Promise<QuoteLineItem[]> {
+    const response = await this.client.get('/api/v1/quote-line-items', { params });
+    return this.extractData(response);
+  }
+
+  async getQuoteLineItem(quoteNumber: string, itemNumber: number | string, params?: QueryParams): Promise<QuoteLineItem> {
+    const response = await this.client.get(`/api/v1/quotes/${quoteNumber}/quote-line-item/${itemNumber}`, { params });
+    return this.extractData(response);
+  }
+
+  async createQuoteLineItem(quoteNumber: string, payload: Partial<QuoteLineItem>): Promise<QuoteLineItem> {
+    const response = await this.client.post(`/api/v1/quotes/${quoteNumber}/quote-line-items`, payload);
+    return this.extractData(response);
+  }
+
+  async updateQuoteLineItem(
+    quoteNumber: string,
+    itemNumber: number | string,
+    payload: Partial<QuoteLineItem>
+  ): Promise<QuoteLineItem> {
+    const response = await this.client.patch(
+      `/api/v1/quotes/${quoteNumber}/quote-line-items/${itemNumber}`,
+      payload
+    );
+    return this.extractData(response);
+  }
+
+  // Routing operations
+  async getRoutings(params?: QueryParams): Promise<OrderRouting[]> {
+    const response = await this.client.get('/api/v1/routings', { params });
+    return this.extractData(response);
+  }
+
+  async getRoutingByPartNumber(partNumber: string, stepNumber: number | string, params?: QueryParams): Promise<OrderRouting> {
+    const response = await this.client.get(`/api/v1/estimates/${partNumber}/routings/${stepNumber}`, { params });
+    return this.extractData(response);
+  }
+
+  // Report operations
+  async submitReportRequest(body: Record<string, any>): Promise<ReportSubmissionResult> {
+    const response = await this.client.post('/api/v1/reports', body);
+    return this.extractData(response);
+  }
+
+  async getReportRequest(requestId: string): Promise<ReportSubmissionResult> {
+    const response = await this.client.get(`/api/v1/reports/${requestId}`);
+    return this.extractData(response);
+  }
+
+  // Salesperson operations
+  async getSalespersons(params?: QueryParams): Promise<Salesperson[]> {
+    const response = await this.client.get('/api/v1/salespersons', { params });
+    return this.extractData(response);
+  }
+
+  // Time ticket operations
+  async getTimeTicketDetails(params?: QueryParams): Promise<TimeTicketDetail[]> {
+    const response = await this.client.get('/api/v1/time-ticket-details', { params });
+    return this.extractData(response);
+  }
+
+  async getTimeTicketDetailByGuid(timeTicketGUID: string, params?: QueryParams): Promise<TimeTicketDetail> {
+    const response = await this.client.get(`/api/v1/time-ticket-details/${timeTicketGUID}`, { params });
+    return this.extractData(response);
+  }
+
+  async getTimeTickets(params?: QueryParams): Promise<TimeTicket[]> {
+    const response = await this.client.get('/api/v1/time-tickets', { params });
+    return this.extractData(response);
+  }
+
+  async getTimeTicketById(ticketDate: string, employeeCode: string | number, params?: QueryParams): Promise<TimeTicket> {
+    const response = await this.client.get(
+      `/api/v1/time-tickets/${ticketDate}/employees/${employeeCode}`,
+      { params }
+    );
+    return this.extractData(response);
+  }
+
+  // Vendor operations
+  async getVendors(params?: QueryParams): Promise<Vendor[]> {
+    const response = await this.client.get('/api/v1/vendors', { params });
+    return this.extractData(response);
+  }
+
+  async getVendorByCode(vendorCode: string, params?: QueryParams): Promise<Vendor> {
+    const response = await this.client.get(`/api/v1/vendors/${vendorCode}`, { params });
+    return this.extractData(response);
+  }
+
+  // Work center operations
+  async getWorkCenters(params?: QueryParams): Promise<WorkCenter[]> {
+    const response = await this.client.get('/api/v1/work-centers', { params });
+    return this.extractData(response);
+  }
+
+  async getWorkCenterByCode(workCenter: string, params?: QueryParams): Promise<WorkCenter> {
+    const response = await this.client.get(`/api/v1/work-centers/${workCenter}`, { params });
     return this.extractData(response);
   }
 

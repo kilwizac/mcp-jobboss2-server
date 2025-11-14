@@ -2,8 +2,9 @@
   "name": "mcp-jobboss2-server",
   "version": "2.0.0",
   "description": "MCP server for JobBOSS2 API integration with OAuth2 authentication",
-  "type": "module",
+  "type": "commonjs",
   "main": "dist/index.js",
+  "bin": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
@@ -29,5 +30,15 @@
   "devDependencies": {
     "@types/node": "^22.10.5",
     "typescript": "^5.7.2"
+  },
+  "pkg": {
+    "targets": ["node18-win-x64"],
+    "outputPath": "build",
+    "assets": [
+      "dist/**/*",
+      "node_modules/@modelcontextprotocol/sdk/**/*",
+      "node_modules/axios/**/*",
+      "node_modules/zod/**/*"
+    ]
   }
 }
