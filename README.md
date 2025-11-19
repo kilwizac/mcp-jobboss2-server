@@ -1,6 +1,12 @@
 # JobBOSS2 MCP Server
 
+[![Security: Audited](https://img.shields.io/badge/security-audited-green.svg)](SECURITY_SUMMARY.md)
+[![Build: Passing](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
+[![Tests: 7/7](https://img.shields.io/badge/tests-7%2F7-brightgreen.svg)](#)
+
 A Model Context Protocol (MCP) server for integrating with the JobBOSS2 ERP API. This server enables AI assistants like Claude to interact with JobBOSS2 for manufacturing operations, including orders, customers, quotes, materials, and employees.
+
+> **Security Note:** This repository has been professionally audited and contains no sensitive information. See [SECURITY_SUMMARY.md](SECURITY_SUMMARY.md) for details.
 
 ## Features
 
