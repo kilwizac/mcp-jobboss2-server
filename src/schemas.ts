@@ -440,6 +440,8 @@ export const GetPurchaseOrderByNumberSchema = z.object({
   fields: z.string().optional().describe('Comma-separated list of fields to return'),
 });
 
+export const GetQuoteLineItemsSchema = QueryParamsSchema.describe('Query parameters for getting quote line items');
+
 export const GetQuoteLineItemByIdSchema = z.object({
   quoteNumber: z.string().describe('Quote number'),
   itemNumber: StringIdSchema.describe('Quote line item number'),
