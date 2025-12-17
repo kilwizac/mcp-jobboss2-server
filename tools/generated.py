@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Union, Callable
 from fastmcp import FastMCP
-from jobboss2_client import JobBOSS2Client
+from jobboss2_api_client import JobBOSS2Client
 
 def register_generated_tools(mcp: FastMCP, client: JobBOSS2Client):
     configs = [
@@ -41,14 +41,16 @@ def register_generated_tools(mcp: FastMCP, client: JobBOSS2Client):
         {"name": "shopview_kpi_definitions", "description": "Retrieve KPI definitions for ShopView dashboards.", "path": "shopview/kpi-definitions"},
     ]
 
-    for config in configs:
-        def make_tool(path):
-            @mcp.tool(name=config["name"])
-            async def list_tool(**kwargs) -> List[Dict[str, Any]]:
-                return await client.api_call("GET", path, params=kwargs)
-            list_tool.__doc__ = config["description"]
+    for cfg in configs:
+        def make_tool(name: str, description: str, path: str):
+            @mcp.tool(name=name)
+            async def list_tool(params: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
+                return await client.api_call("GET", path, params=params)
+
+            list_tool.__doc__ = description
             return list_tool
-        make_tool(config["path"])
+
+        make_tool(cfg["name"], cfg["description"], cfg["path"])
 
     # More specific tools from generated.ts
     @mcp.tool()
@@ -99,20 +101,24 @@ def register_generated_tools(mcp: FastMCP, client: JobBOSS2Client):
         return await client.api_call("GET", "company")
 
     @mcp.tool()
-    async def get_contacts(**kwargs) -> List[Dict[str, Any]]:
+    async def get_contacts(params: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
         """Retrieve contacts tied to customers, vendors, or prospects."""
-        return await client.api_call("GET", "contacts", params=kwargs)
+        return await client.api_call("GET", "contacts", params=params)
 
     @mcp.tool()
-    async def create_contact(**kwargs) -> Dict[str, Any]:
+    async def create_contact(data: Dict[str, Any]) -> Dict[str, Any]:
         """Create a new contact record."""
-        return await client.api_call("POST", "contacts", data=kwargs)
+        return await client.api_call("POST", "contacts", data=data)
 
     @mcp.tool()
-    async def create_shipping_address(customerCode: str, location: str, **kwargs) -> Dict[str, Any]:
+    async def create_shipping_address(
+        customerCode: str, location: str, data: Dict[str, Any] | None = None
+    ) -> Dict[str, Any]:
         """Create a shipping address for a customer."""
-        data = {"customerCode": customerCode, "location": location, **kwargs}
-        return await client.api_call("POST", "shipping-addresses", data=data)
+        payload: Dict[str, Any] = {"customerCode": customerCode, "location": location}
+        if data:
+            payload.update(data)
+        return await client.api_call("POST", "shipping-addresses", data=payload)
 
     @mcp.tool()
     async def get_shipping_address_by_id(customerCode: str, location: str, fields: str = None) -> Dict[str, Any]:
@@ -121,9 +127,9 @@ def register_generated_tools(mcp: FastMCP, client: JobBOSS2Client):
         return await client.api_call("GET", f"shipping-addresses/{customerCode}/{location}", params=params)
 
     @mcp.tool()
-    async def update_shipping_address(customerCode: str, location: str, **kwargs) -> Dict[str, Any]:
+    async def update_shipping_address(customerCode: str, location: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Update a shipping address specified by customer code and location."""
-        return await client.api_call("PATCH", f"shipping-addresses/{customerCode}/{location}", data=kwargs)
+        return await client.api_call("PATCH", f"shipping-addresses/{customerCode}/{location}", data=data)
 
     @mcp.tool()
     async def get_contact_by_id(object: str, contactCode: str, contact: str, fields: str = None) -> Dict[str, Any]:
@@ -132,92 +138,96 @@ def register_generated_tools(mcp: FastMCP, client: JobBOSS2Client):
         return await client.api_call("GET", f"contacts/{object}/{contactCode}/{contact}", params=params)
 
     @mcp.tool()
-    async def create_vendor(**kwargs) -> Dict[str, Any]:
+    async def create_vendor(data: Dict[str, Any]) -> Dict[str, Any]:
         """Create a vendor record."""
-        return await client.api_call("POST", "vendors", data=kwargs)
+        return await client.api_call("POST", "vendors", data=data)
 
     @mcp.tool()
-    async def update_vendor(vendorCode: str, **kwargs) -> Dict[str, Any]:
+    async def update_vendor(vendorCode: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Update a vendor by vendor code."""
-        return await client.api_call("PATCH", f"vendors/{vendorCode}", data=kwargs)
+        return await client.api_call("PATCH", f"vendors/{vendorCode}", data=data)
 
     @mcp.tool()
-    async def create_work_center(**kwargs) -> Dict[str, Any]:
+    async def create_work_center(data: Dict[str, Any]) -> Dict[str, Any]:
         """Create a work center definition."""
-        return await client.api_call("POST", "work-centers", data=kwargs)
+        return await client.api_call("POST", "work-centers", data=data)
 
     @mcp.tool()
-    async def update_work_center(workCenter: str, **kwargs) -> Dict[str, Any]:
+    async def update_work_center(workCenter: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Update a work center by code."""
-        return await client.api_call("PATCH", f"work-centers/{workCenter}", data=kwargs)
+        return await client.api_call("PATCH", f"work-centers/{workCenter}", data=data)
 
     @mcp.tool()
-    async def update_employee(employeeCode: str, **kwargs) -> Dict[str, Any]:
+    async def update_employee(employeeCode: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Update an employee record in JobBOSS2."""
-        return await client.api_call("PATCH", f"employees/{employeeCode}", data=kwargs)
+        return await client.api_call("PATCH", f"employees/{employeeCode}", data=data)
 
     @mcp.tool()
-    async def update_salesperson(salesID: str, **kwargs) -> Dict[str, Any]:
+    async def update_salesperson(salesID: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Update a salesperson record."""
-        return await client.api_call("PATCH", f"salespersons/{salesID}", data=kwargs)
+        return await client.api_call("PATCH", f"salespersons/{salesID}", data=data)
 
     @mcp.tool()
-    async def update_purchase_order(poNumber: str, **kwargs) -> Dict[str, Any]:
+    async def update_purchase_order(poNumber: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Patch an existing purchase order by PO number."""
-        return await client.api_call("PATCH", f"purchase-orders/{poNumber}", data=kwargs)
+        return await client.api_call("PATCH", f"purchase-orders/{poNumber}", data=data)
 
     @mcp.tool()
-    async def update_purchase_order_line_item(purchaseOrderNumber: str, partNumber: str, itemNumber: Union[str, int], **kwargs) -> Dict[str, Any]:
+    async def update_purchase_order_line_item(
+        purchaseOrderNumber: str, partNumber: str, itemNumber: Union[str, int], data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Patch a purchase order line item."""
-        return await client.api_call("PATCH", f"purchase-order-line-items/{purchaseOrderNumber}/{partNumber}/{itemNumber}", data=kwargs)
+        return await client.api_call(
+            "PATCH", f"purchase-order-line-items/{purchaseOrderNumber}/{partNumber}/{itemNumber}", data=data
+        )
 
     @mcp.tool()
-    async def create_time_ticket(**kwargs) -> Dict[str, Any]:
+    async def create_time_ticket(data: Dict[str, Any]) -> Dict[str, Any]:
         """Create a time ticket header."""
-        return await client.api_call("POST", "time-tickets", data=kwargs)
+        return await client.api_call("POST", "time-tickets", data=data)
 
     @mcp.tool()
-    async def update_time_ticket(ticketDate: str, employeeCode: Union[str, int], **kwargs) -> Dict[str, Any]:
+    async def update_time_ticket(ticketDate: str, employeeCode: Union[str, int], data: Dict[str, Any]) -> Dict[str, Any]:
         """Update a time ticket."""
-        return await client.api_call("PATCH", f"time-tickets/{ticketDate}/employees/{employeeCode}", data=kwargs)
+        return await client.api_call("PATCH", f"time-tickets/{ticketDate}/employees/{employeeCode}", data=data)
 
     @mcp.tool()
-    async def create_time_ticket_detail(**kwargs) -> Dict[str, Any]:
+    async def create_time_ticket_detail(data: Dict[str, Any]) -> Dict[str, Any]:
         """Create a time ticket detail entry."""
-        return await client.api_call("POST", "time-ticket-details", data=kwargs)
+        return await client.api_call("POST", "time-ticket-details", data=data)
 
     @mcp.tool()
-    async def update_time_ticket_detail(timeTicketGUID: str, **kwargs) -> Dict[str, Any]:
+    async def update_time_ticket_detail(timeTicketGUID: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Update a time ticket detail entry by GUID."""
-        return await client.api_call("PATCH", f"time-ticket-details/{timeTicketGUID}", data=kwargs)
+        return await client.api_call("PATCH", f"time-ticket-details/{timeTicketGUID}", data=data)
 
     @mcp.tool()
-    async def eci_aps_authenticate_user(**kwargs) -> Dict[str, Any]:
+    async def eci_aps_authenticate_user(data: Dict[str, Any]) -> Dict[str, Any]:
         """Authenticate against the ECI APS endpoints."""
-        return await client.api_call("POST", "eci-aps/authenticate-user", data=kwargs)
+        return await client.api_call("POST", "eci-aps/authenticate-user", data=data)
 
     @mcp.tool()
-    async def eci_aps_get_schedule(**kwargs) -> List[Dict[str, Any]]:
+    async def eci_aps_get_schedule(params: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
         """Retrieve the APS schedule feed."""
-        return await client.api_call("GET", "eci-aps/get-schedule", params=kwargs)
+        return await client.api_call("GET", "eci-aps/get-schedule", params=params)
 
     @mcp.tool()
-    async def shopview_authenticate_user(**kwargs) -> Dict[str, Any]:
+    async def shopview_authenticate_user(data: Dict[str, Any]) -> Dict[str, Any]:
         """Authenticate a ShopView user."""
-        return await client.api_call("POST", "shopview/authenticate-user", data=kwargs)
+        return await client.api_call("POST", "shopview/authenticate-user", data=data)
 
     @mcp.tool()
-    async def shopview_set_grid_option(**kwargs) -> Dict[str, Any]:
+    async def shopview_set_grid_option(data: Dict[str, Any]) -> Dict[str, Any]:
         """Persist ShopView grid option preferences."""
-        return await client.api_call("POST", "shopview/grid-option", data=kwargs)
+        return await client.api_call("POST", "shopview/grid-option", data=data)
 
     @mcp.tool()
-    async def shopview_reset_grid_options(**kwargs) -> Dict[str, Any]:
+    async def shopview_reset_grid_options(data: Dict[str, Any] | None = None) -> Dict[str, Any]:
         """Reset ShopView grid options to defaults."""
-        return await client.api_call("POST", "shopview/reset-grid-options", data=kwargs)
+        return await client.api_call("POST", "shopview/reset-grid-options", data=data or {})
 
     @mcp.tool()
-    async def update_contact(object: str, contactCode: str, contact: str, **kwargs) -> Dict[str, Any]:
+    async def update_contact(object: str, contactCode: str, contact: str, data: Dict[str, Any]) -> Dict[str, Any]:
         """Update a contact record."""
-        return await client.api_call("PATCH", f"contacts/{object}/{contactCode}/{contact}", data=kwargs)
+        return await client.api_call("PATCH", f"contacts/{object}/{contactCode}/{contact}", data=data)
 

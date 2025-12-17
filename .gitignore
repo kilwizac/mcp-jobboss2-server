@@ -30,5 +30,15 @@ build/
 logs/
 *.log
 
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+ENV/
+env/
+
 # OS
 Thumbs.db

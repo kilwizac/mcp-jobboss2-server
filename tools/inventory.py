@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Union
 from fastmcp import FastMCP
-from jobboss2_client import JobBOSS2Client
+from jobboss2_api_client import JobBOSS2Client
 
 def register_inventory_tools(mcp: FastMCP, client: JobBOSS2Client):
     @mcp.tool()
@@ -9,10 +9,12 @@ def register_inventory_tools(mcp: FastMCP, client: JobBOSS2Client):
         sort: str = None,
         skip: int = None,
         take: int = 200,
-        **kwargs
+        filters: Dict[str, Any] | None = None,
     ) -> List[Dict[str, Any]]:
         """Retrieve a list of materials from JobBOSS2. Supports filtering, sorting, pagination, and field selection."""
-        params = {"fields": fields, "sort": sort, "skip": skip, "take": take, **kwargs}
+        params: Dict[str, Any] = {"fields": fields, "sort": sort, "skip": skip, "take": take}
+        if filters:
+            params.update(filters)
         params = {k: v for k, v in params.items() if v is not None}
         return await client.api_call("GET", "materials", params=params)
 
@@ -28,10 +30,12 @@ def register_inventory_tools(mcp: FastMCP, client: JobBOSS2Client):
         sort: str = None,
         skip: int = None,
         take: int = 200,
-        **kwargs
+        filters: Dict[str, Any] | None = None,
     ) -> List[Dict[str, Any]]:
         """Retrieve a list of bin locations from JobBOSS2."""
-        params = {"fields": fields, "sort": sort, "skip": skip, "take": take, **kwargs}
+        params: Dict[str, Any] = {"fields": fields, "sort": sort, "skip": skip, "take": take}
+        if filters:
+            params.update(filters)
         params = {k: v for k, v in params.items() if v is not None}
         return await client.api_call("GET", "bin-locations", params=params)
 
@@ -41,10 +45,12 @@ def register_inventory_tools(mcp: FastMCP, client: JobBOSS2Client):
         sort: str = None,
         skip: int = None,
         take: int = 200,
-        **kwargs
+        filters: Dict[str, Any] | None = None,
     ) -> List[Dict[str, Any]]:
         """Retrieve job material postings (issues/receipts) with bin locations, costs, and related job/order information."""
-        params = {"fields": fields, "sort": sort, "skip": skip, "take": take, **kwargs}
+        params: Dict[str, Any] = {"fields": fields, "sort": sort, "skip": skip, "take": take}
+        if filters:
+            params.update(filters)
         params = {k: v for k, v in params.items() if v is not None}
         return await client.api_call("GET", "job-materials", params=params)
 
@@ -60,10 +66,12 @@ def register_inventory_tools(mcp: FastMCP, client: JobBOSS2Client):
         sort: str = None,
         skip: int = None,
         take: int = 200,
-        **kwargs
+        filters: Dict[str, Any] | None = None,
     ) -> List[Dict[str, Any]]:
         """Retrieve job requirement/purchase suggestions including vendor codes, lead times, and required quantities."""
-        params = {"fields": fields, "sort": sort, "skip": skip, "take": take, **kwargs}
+        params: Dict[str, Any] = {"fields": fields, "sort": sort, "skip": skip, "take": take}
+        if filters:
+            params.update(filters)
         params = {k: v for k, v in params.items() if v is not None}
         return await client.api_call("GET", "job-requirements", params=params)
 
@@ -74,19 +82,19 @@ def register_inventory_tools(mcp: FastMCP, client: JobBOSS2Client):
         return await client.api_call("GET", f"job-requirements/{uniqueID}", params=params)
 
     @mcp.tool()
-    async def get_packing_list_line_items(**kwargs) -> List[Dict[str, Any]]:
+    async def get_packing_list_line_items(params: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
         """Retrieve packing list line items showing what was shipped, quantities, and job references."""
-        return await client.api_call("GET", "packing-list-line-items", params=kwargs)
+        return await client.api_call("GET", "packing-list-line-items", params=params)
 
     @mcp.tool()
-    async def get_packing_lists(**kwargs) -> List[Dict[str, Any]]:
+    async def get_packing_lists(params: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
         """Retrieve packing list headers including ship-to, freight, and container information."""
-        return await client.api_call("GET", "packing-lists", params=kwargs)
+        return await client.api_call("GET", "packing-lists", params=params)
 
     @mcp.tool()
-    async def get_product_codes(**kwargs) -> List[Dict[str, Any]]:
+    async def get_product_codes(params: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
         """Retrieve product codes with related GL accounts and cash discount settings."""
-        return await client.api_call("GET", "product-codes", params=kwargs)
+        return await client.api_call("GET", "product-codes", params=params)
 
     @mcp.tool()
     async def get_product_code(productCode: str, fields: str = None) -> Dict[str, Any]:
@@ -95,9 +103,9 @@ def register_inventory_tools(mcp: FastMCP, client: JobBOSS2Client):
         return await client.api_call("GET", f"product-codes/{productCode}", params=params)
 
     @mcp.tool()
-    async def get_purchase_order_line_items(**kwargs) -> List[Dict[str, Any]]:
+    async def get_purchase_order_line_items(params: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
         """Retrieve purchase order line items with quantities, costs, and routing information."""
-        return await client.api_call("GET", "purchase-order-line-items", params=kwargs)
+        return await client.api_call("GET", "purchase-order-line-items", params=params)
 
     @mcp.tool()
     async def get_purchase_order_line_item(
@@ -111,14 +119,14 @@ def register_inventory_tools(mcp: FastMCP, client: JobBOSS2Client):
         return await client.api_call("GET", f"purchase-order-line-items/{purchaseOrderNumber}/{partNumber}/{itemNumber}", params=params)
 
     @mcp.tool()
-    async def get_purchase_order_releases(**kwargs) -> List[Dict[str, Any]]:
+    async def get_purchase_order_releases(params: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
         """Retrieve purchase order release schedules showing quantities and due dates."""
-        return await client.api_call("GET", "purchase-order-releases", params=kwargs)
+        return await client.api_call("GET", "purchase-order-releases", params=params)
 
     @mcp.tool()
-    async def get_purchase_orders(**kwargs) -> List[Dict[str, Any]]:
+    async def get_purchase_orders(params: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
         """Retrieve purchase order headers including vendor, ship-to, and totals."""
-        return await client.api_call("GET", "purchase-orders", params=kwargs)
+        return await client.api_call("GET", "purchase-orders", params=params)
 
     @mcp.tool()
     async def get_purchase_order_by_number(poNumber: str, fields: str = None) -> Dict[str, Any]:
@@ -127,9 +135,9 @@ def register_inventory_tools(mcp: FastMCP, client: JobBOSS2Client):
         return await client.api_call("GET", f"purchase-orders/{poNumber}", params=params)
 
     @mcp.tool()
-    async def get_vendors(**kwargs) -> List[Dict[str, Any]]:
+    async def get_vendors(params: Dict[str, Any] | None = None) -> List[Dict[str, Any]]:
         """Retrieve vendor master records including payment terms and lead times."""
-        return await client.api_call("GET", "vendors", params=kwargs)
+        return await client.api_call("GET", "vendors", params=params)
 
     @mcp.tool()
     async def get_vendor_by_code(vendorCode: str, fields: str = None) -> Dict[str, Any]:

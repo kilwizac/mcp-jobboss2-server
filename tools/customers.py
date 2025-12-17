@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Union
 from fastmcp import FastMCP
-from jobboss2_client import JobBOSS2Client
+from jobboss2_api_client import JobBOSS2Client
 
 def register_customer_tools(mcp: FastMCP, client: JobBOSS2Client):
     @mcp.tool()
@@ -9,10 +9,12 @@ def register_customer_tools(mcp: FastMCP, client: JobBOSS2Client):
         sort: str = None,
         skip: int = None,
         take: int = 200,
-        **kwargs
+        filters: Dict[str, Any] | None = None,
     ) -> List[Dict[str, Any]]:
         """Retrieve a list of customers from JobBOSS2. Supports filtering, sorting, pagination, and field selection."""
-        params = {"fields": fields, "sort": sort, "skip": skip, "take": take, **kwargs}
+        params: Dict[str, Any] = {"fields": fields, "sort": sort, "skip": skip, "take": take}
+        if filters:
+            params.update(filters)
         params = {k: v for k, v in params.items() if v is not None}
         return await client.get_customers(params)
 
@@ -28,18 +30,19 @@ def register_customer_tools(mcp: FastMCP, client: JobBOSS2Client):
         customerName: str,
         phone: str = None,
         billingAddress1: str = None,
-        **kwargs
+        data: Dict[str, Any] | None = None,
     ) -> Dict[str, Any]:
         """Create a new customer in JobBOSS2."""
-        data = {
+        payload: Dict[str, Any] = {
             "customerCode": customerCode,
             "customerName": customerName,
             "phone": phone,
             "billingAddress1": billingAddress1,
-            **kwargs
         }
-        data = {k: v for k, v in data.items() if v is not None}
-        return await client.api_call("POST", "customers", data=data)
+        if data:
+            payload.update(data)
+        payload = {k: v for k, v in payload.items() if v is not None}
+        return await client.api_call("POST", "customers", data=payload)
 
     @mcp.tool()
     async def update_customer(
@@ -47,15 +50,16 @@ def register_customer_tools(mcp: FastMCP, client: JobBOSS2Client):
         customerName: str = None,
         phone: str = None,
         billingAddress1: str = None,
-        **kwargs
+        data: Dict[str, Any] | None = None,
     ) -> Dict[str, Any]:
         """Update an existing customer in JobBOSS2."""
-        data = {
+        payload: Dict[str, Any] = {
             "customerName": customerName,
             "phone": phone,
             "billingAddress1": billingAddress1,
-            **kwargs
         }
-        data = {k: v for k, v in data.items() if v is not None}
-        return await client.api_call("PATCH", f"customers/{customerCode}", data=data)
+        if data:
+            payload.update(data)
+        payload = {k: v for k, v in payload.items() if v is not None}
+        return await client.api_call("PATCH", f"customers/{customerCode}", data=payload)
 

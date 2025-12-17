@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Union
 from fastmcp import FastMCP
-from jobboss2_client import JobBOSS2Client
+from jobboss2_api_client import JobBOSS2Client
 
 def register_order_tools(mcp: FastMCP, client: JobBOSS2Client):
     @mcp.tool()
@@ -9,7 +9,7 @@ def register_order_tools(mcp: FastMCP, client: JobBOSS2Client):
         sort: str = None,
         skip: int = None,
         take: int = 200,
-        **kwargs
+        filters: Dict[str, Any] | None = None,
     ) -> List[Dict[str, Any]]:
         """
         Retrieve a list of orders from JobBOSS2.
@@ -20,8 +20,9 @@ def register_order_tools(mcp: FastMCP, client: JobBOSS2Client):
             "sort": sort,
             "skip": skip,
             "take": take,
-            **kwargs
         }
+        if filters:
+            params.update(filters)
         # Remove None values
         params = {k: v for k, v in params.items() if v is not None}
         return await client.get_orders(params)
@@ -39,19 +40,20 @@ def register_order_tools(mcp: FastMCP, client: JobBOSS2Client):
         PONumber: str = None,
         status: str = None,
         dueDate: str = None,
-        **kwargs
+        data: Dict[str, Any] | None = None,
     ) -> Dict[str, Any]:
         """Create a new order in JobBOSS2."""
-        data = {
+        payload: Dict[str, Any] = {
             "customerCode": customerCode,
             "orderNumber": orderNumber,
             "PONumber": PONumber,
             "status": status,
             "dueDate": dueDate,
-            **kwargs
         }
-        data = {k: v for k, v in data.items() if v is not None}
-        return await client.api_call("POST", "orders", data=data)
+        if data:
+            payload.update(data)
+        payload = {k: v for k, v in payload.items() if v is not None}
+        return await client.api_call("POST", "orders", data=payload)
 
     @mcp.tool()
     async def update_order(
@@ -60,18 +62,19 @@ def register_order_tools(mcp: FastMCP, client: JobBOSS2Client):
         PONumber: str = None,
         status: str = None,
         dueDate: str = None,
-        **kwargs
+        data: Dict[str, Any] | None = None,
     ) -> Dict[str, Any]:
         """Update an existing order in JobBOSS2."""
-        data = {
+        payload: Dict[str, Any] = {
             "customerCode": customerCode,
             "PONumber": PONumber,
             "status": status,
             "dueDate": dueDate,
-            **kwargs
         }
-        data = {k: v for k, v in data.items() if v is not None}
-        return await client.api_call("PATCH", f"orders/{orderNumber}", data=data)
+        if data:
+            payload.update(data)
+        payload = {k: v for k, v in payload.items() if v is not None}
+        return await client.api_call("PATCH", f"orders/{orderNumber}", data=payload)
 
     @mcp.tool()
     async def get_order_line_items(orderNumber: str, fields: str = None) -> List[Dict[str, Any]]:
@@ -92,18 +95,19 @@ def register_order_tools(mcp: FastMCP, client: JobBOSS2Client):
         description: str = None,
         quantity: float = None,
         price: float = None,
-        **kwargs
+        data: Dict[str, Any] | None = None,
     ) -> Dict[str, Any]:
         """Create a new line item for an order."""
-        data = {
+        payload: Dict[str, Any] = {
             "partNumber": partNumber,
             "description": description,
             "quantity": quantity,
             "price": price,
-            **kwargs
         }
-        data = {k: v for k, v in data.items() if v is not None}
-        return await client.api_call("POST", f"orders/{orderNumber}/order-line-items", data=data)
+        if data:
+            payload.update(data)
+        payload = {k: v for k, v in payload.items() if v is not None}
+        return await client.api_call("POST", f"orders/{orderNumber}/order-line-items", data=payload)
 
     @mcp.tool()
     async def update_order_line_item(
@@ -113,16 +117,17 @@ def register_order_tools(mcp: FastMCP, client: JobBOSS2Client):
         description: str = None,
         quantity: float = None,
         price: float = None,
-        **kwargs
+        data: Dict[str, Any] | None = None,
     ) -> Dict[str, Any]:
         """Update an existing order line item."""
-        data = {
+        payload: Dict[str, Any] = {
             "partNumber": partNumber,
             "description": description,
             "quantity": quantity,
             "price": price,
-            **kwargs
         }
-        data = {k: v for k, v in data.items() if v is not None}
-        return await client.api_call("PATCH", f"orders/{orderNumber}/order-line-items/{itemNumber}", data=data)
+        if data:
+            payload.update(data)
+        payload = {k: v for k, v in payload.items() if v is not None}
+        return await client.api_call("PATCH", f"orders/{orderNumber}/order-line-items/{itemNumber}", data=payload)
 
