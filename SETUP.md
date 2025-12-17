@@ -30,61 +30,31 @@ npm install
 npm run build
 ```
 
-## Step 4: Configure Claude Desktop
+## Step 4: Verify It Works
 
-1. Open Claude Desktop config file:
-   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-
-2. Add this configuration (replace the path with your actual path):
-
-   ```json
-   {
-     "mcpServers": {
-       "jobboss2": {
-         "command": "node",
-         "args": [
-           "C:\\path\\to\\mcp-jobboss2-server\\dist\\index.js"
-         ],
-         "env": {
-           "JOBBOSS2_API_URL": "https://your-instance.ecisolutions.com/api",
-           "JOBBOSS2_API_KEY": "your_actual_api_key",
-           "JOBBOSS2_API_SECRET": "your_actual_api_secret"
-         }
-       }
-     }
-   }
-   ```
-
-   **Important**: Use double backslashes (`\\`) in Windows paths!
-
-3. Restart Claude Desktop
-
-## Step 5: Verify It Works
-
-In Claude Desktop, try asking:
+Once your MCP client is configured to use this server, try asking:
 
 > "Can you list the available tools from the JobBOSS2 server?"
 
-You should see tools like `get_jobs`, `create_job`, `get_customers`, etc.
+You should see tools like `get_orders`, `create_order`, `get_customers`, etc.
 
 ## Testing API Connection
 
-To test the connection, ask Claude:
+To test the connection, ask your assistant:
 
-> "Can you get a list of jobs from JobBOSS2?"
+> "Can you get a list of orders from JobBOSS2?"
 
-If everything is configured correctly, Claude will use the MCP server to query JobBOSS2.
+If everything is configured correctly, the assistant will use the MCP server to query JobBOSS2.
 
 ## Troubleshooting
 
 ### "Server not found" or connection errors
 - Verify the path to `dist/index.js` is correct
 - Check that you've run `npm run build`
-- Restart Claude Desktop after config changes
+- Restart your MCP client after configuration changes
 
 ### Authentication errors
-- Double-check your API credentials in the config
+- Double-check your API credentials in the environment configuration
 - Ensure API access is enabled for your account
 - Verify the API URL is correct
 
@@ -96,8 +66,8 @@ If everything is configured correctly, Claude will use the MCP server to query J
 ## Next Steps
 
 Once configured, you can:
-- Ask Claude to retrieve job information
-- Create and update jobs, customers, and work orders
+- Ask your assistant to retrieve order information
+- Create and update orders, customers, and employees
 - Query specific records by ID
 - Make custom API calls for advanced operations
 

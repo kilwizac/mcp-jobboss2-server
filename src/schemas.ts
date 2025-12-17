@@ -260,6 +260,7 @@ export const UpdateCustomerSchema = z.object({
 
 // Quote schemas
 export const GetQuotesSchema = QueryParamsSchema.describe('Query parameters for getting quotes');
+export const GetQuoteLineItemsSchema = QueryParamsSchema.describe('Query parameters for getting quote line items');
 
 export const GetQuoteByIdSchema = z.object({
   quoteNumber: z.string().describe('The quote number to retrieve'),

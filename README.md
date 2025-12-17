@@ -1,6 +1,6 @@
 # JobBOSS2 MCP Server
 
-A Model Context Protocol (MCP) server for integrating with the JobBOSS2 ERP API. This server enables AI assistants like Claude to interact with JobBOSS2 for manufacturing operations, including orders, customers, quotes, materials, and employees.
+A Model Context Protocol (MCP) server for integrating with the JobBOSS2 ERP API, built with the [FastMCP](https://github.com/punkpeye/fastmcp) framework. This server enables AI assistants to interact with JobBOSS2 for manufacturing operations, including orders, customers, quotes, materials, and employees.
 
 ## Features
 
@@ -66,34 +66,6 @@ To run the server directly:
 ```bash
 npm start
 ```
-
-### Configuring with Claude Desktop
-
-Add this server to your Claude Desktop configuration file:
-
-**On macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**On Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "jobboss2": {
-      "command": "node",
-      "args": [
-        "C:\\absolute\\path\\to\\mcp-jobboss2-server\\dist\\index.js"
-      ],
-      "env": {
-        "JOBBOSS2_API_URL": "https://api-jb2.integrations.ecimanufacturing.com:443",
-        "JOBBOSS2_OAUTH_TOKEN_URL": "https://api-user.integrations.ecimanufacturing.com:443/oauth2/api-user/token",
-        "JOBBOSS2_API_KEY": "your-api-key-here",
-        "JOBBOSS2_API_SECRET": "your-api-secret-here"
-      }
-    }
-  }
-}
-```
-
-After adding the configuration, restart Claude Desktop.
 
 ## Available Tools
 
@@ -443,9 +415,9 @@ Make a custom API call to any JobBOSS2 API endpoint. Endpoint paths will automat
 - `data` (optional): Request body data for POST/PUT/PATCH
 - `params` (optional): Query parameters (for filtering, sorting, pagination, field selection)
 
-## Example Usage with Claude
+## Example Usage
 
-Once configured, you can ask Claude to interact with JobBOSS2:
+Once configured, you can ask your AI assistant to interact with JobBOSS2:
 
 > "Can you get me a list of all open orders?"
 
@@ -626,6 +598,12 @@ For issues related to:
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
 
 ## Version History
+
+### v3.0.0
+- Migrated to FastMCP framework for better performance and easier maintenance
+- Converted project to ESM (EcmaScript Modules)
+- Updated Zod schemas for improved tool parameter discovery and validation
+- Cleaned up documentation to be assistant-agnostic
 
 ### v2.0.0
 - Complete rewrite to match actual JobBOSS2 API structure
