@@ -422,16 +422,16 @@ export const orderHandlers: Record<string, (args: any, client: JobBOSS2Client) =
         }
         
         // Map quote line items to order line items
+        // QuoteLineItem uses price breaks (price1-8, quantity1-8, unit1-8) - use first break as default
         if (Array.isArray(lineItemsToCopy) && lineItemsToCopy.length > 0) {
             orderPayload.orderLineItems = lineItemsToCopy.map((qli: any) => ({
                 partNumber: qli.partNumber,
-                partDescription: qli.partDescription || qli.description,
-                quantityOrdered: qli.quantityOrdered || qli.quantity,
-                unitPrice: qli.unitPrice || qli.price,
+                partDescription: qli.description,
+                quantityOrdered: qli.quantity1,
+                unitPrice: qli.price1,
                 quoteNumber: quoteNumber,
                 quoteItemNumber: qli.itemNumber,
-                productCode: qli.productCode,
-                pricingUnit: qli.pricingUnit,
+                pricingUnit: qli.unit1,
                 revision: qli.revision,
             }));
         }

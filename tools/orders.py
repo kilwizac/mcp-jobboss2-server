@@ -244,17 +244,17 @@ def register_order_tools(mcp: FastMCP, client: JobBOSS2Client):
             order_payload.update(overrides)
         
         # Map quote line items to order line items
+        # QuoteLineItem uses price breaks (price1-8, quantity1-8, unit1-8) - use first break as default
         if line_items_to_copy:
             order_payload["orderLineItems"] = [
                 {
                     "partNumber": qli.get("partNumber"),
-                    "partDescription": qli.get("partDescription") or qli.get("description"),
-                    "quantityOrdered": qli.get("quantityOrdered") or qli.get("quantity"),
-                    "unitPrice": qli.get("unitPrice") or qli.get("price"),
+                    "partDescription": qli.get("description"),
+                    "quantityOrdered": qli.get("quantity1"),
+                    "unitPrice": qli.get("price1"),
                     "quoteNumber": quoteNumber,
                     "quoteItemNumber": qli.get("itemNumber"),
-                    "productCode": qli.get("productCode"),
-                    "pricingUnit": qli.get("pricingUnit"),
+                    "pricingUnit": qli.get("unit1"),
                     "revision": qli.get("revision"),
                 }
                 for qli in line_items_to_copy
