@@ -389,7 +389,7 @@ export const orderHandlers: Record<string, (args: any, client: JobBOSS2Client) =
         return {
             order,
             lineItems,
-            routings: includeRoutings ? routings : undefined,
+            routings: includeRoutings && Array.isArray(lineItems) ? routings : undefined,
         };
     },
     create_order_from_quote: async (args, client) => {

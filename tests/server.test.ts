@@ -57,6 +57,23 @@ describe('Server Handlers', () => {
             expect(result).toEqual({ order: mockOrder, lineItems: mockLineItems, routings: undefined });
         });
 
+        it('get_order_bundle should fetch routings by default', async () => {
+            const args = { orderNumber: 'ORD2' };
+            const mockOrder = { orderNumber: 'ORD2' };
+            const mockLineItems = [{ itemNumber: 1 }];
+            const mockRoutings = [{ stepNumber: 10 }];
+            (mockClient.getOrderById as jest.Mock).mockResolvedValue(mockOrder);
+            (mockClient.getOrderLineItems as jest.Mock).mockResolvedValue(mockLineItems);
+            (mockClient.getOrderRoutings as jest.Mock).mockResolvedValue(mockRoutings);
+
+            const result = await orderHandlers.get_order_bundle(args, mockClient);
+
+            expect(mockClient.getOrderById).toHaveBeenCalledWith('ORD2', undefined);
+            expect(mockClient.getOrderLineItems).toHaveBeenCalledWith('ORD2', undefined);
+            expect(mockClient.getOrderRoutings).toHaveBeenCalledWith({ orderNumber: 'ORD2' });
+            expect(result).toEqual({ order: mockOrder, lineItems: mockLineItems, routings: mockRoutings });
+        });
+
         it('create_order_from_quote should fetch quote and line items', async () => {
             const args = { quoteNumber: 'Q1', customerCode: 'CUST1' };
             (mockClient.getQuoteById as jest.Mock).mockResolvedValue({ customerCode: 'CUST1' });
