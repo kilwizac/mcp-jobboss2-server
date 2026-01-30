@@ -134,7 +134,7 @@ export function registerTools(server: FastMCP, client: JobBOSS2Client) {
         try {
           const result = await handler(args, client);
           return {
-            content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+            content: [{ type: "text", text: JSON.stringify(result) }],
           };
         } catch (error: any) {
           return {
@@ -163,7 +163,7 @@ export function registerTools(server: FastMCP, client: JobBOSS2Client) {
           }
 
           return {
-            content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+            content: [{ type: "text", text: JSON.stringify(result) }],
           };
         } catch (error: any) {
           return {
@@ -175,4 +175,3 @@ export function registerTools(server: FastMCP, client: JobBOSS2Client) {
     });
   }
 }
-
