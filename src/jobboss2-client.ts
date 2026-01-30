@@ -48,6 +48,7 @@ export class JobBOSS2Client {
   private tokenExpiry: number = 0;
   private tokenRefreshTimer: ReturnType<typeof setTimeout> | null = null;
   private isRefreshing = false;
+  private refreshPromise: Promise<void> | null = null;
 
   constructor(config: JobBOSS2Config) {
     this.apiKey = config.apiKey;
@@ -98,34 +99,46 @@ export class JobBOSS2Client {
 
   // OAuth2 Token Management
   private async fetchAccessToken(): Promise<void> {
-    this.isRefreshing = true;
-    try {
-      const response = await axios.post<OAuthTokenResponse>(
-        this.tokenUrl,
-        new URLSearchParams({
-          grant_type: 'client_credentials',
-          client_id: this.apiKey,
-          client_secret: this.apiSecret,
-        }),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        }
-      );
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
 
-      this.accessToken = response.data.access_token;
-      // Set expiry to 5 minutes before actual expiry for safety
-      this.tokenExpiry = Date.now() + (response.data.expires_in - 300) * 1000;
-      this.scheduleTokenRefresh();
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const statusText = error.response?.statusText ? ` ${error.response.statusText}` : '';
-        throw new Error(`OAuth2 Token Error: ${error.response?.status ?? 'Unknown'}${statusText}`);
+    this.isRefreshing = true;
+    this.refreshPromise = (async () => {
+      try {
+        const response = await axios.post<OAuthTokenResponse>(
+          this.tokenUrl,
+          new URLSearchParams({
+            grant_type: 'client_credentials',
+            client_id: this.apiKey,
+            client_secret: this.apiSecret,
+          }),
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          }
+        );
+
+        this.accessToken = response.data.access_token;
+        // Set expiry to 5 minutes before actual expiry for safety
+        this.tokenExpiry = Date.now() + (response.data.expires_in - 300) * 1000;
+        this.scheduleTokenRefresh();
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const statusText = error.response?.statusText ? ` ${error.response.statusText}` : '';
+          throw new Error(`OAuth2 Token Error: ${error.response?.status ?? 'Unknown'}${statusText}`);
+        }
+        throw error;
+      } finally {
+        this.isRefreshing = false;
       }
-      throw error;
+    })();
+
+    try {
+      await this.refreshPromise;
     } finally {
-      this.isRefreshing = false;
+      this.refreshPromise = null;
     }
   }
 
@@ -134,7 +147,7 @@ export class JobBOSS2Client {
   }
 
   private scheduleTokenRefresh(): void {
-    if (!this.tokenExpiry) {
+    if (this.tokenExpiry <= 0) {
       return;
     }
 
@@ -156,6 +169,13 @@ export class JobBOSS2Client {
       }
     }, delayMs);
     this.tokenRefreshTimer.unref?.();
+  }
+
+  destroy(): void {
+    if (this.tokenRefreshTimer) {
+      clearTimeout(this.tokenRefreshTimer);
+      this.tokenRefreshTimer = null;
+    }
   }
 
   private async ensureValidToken(): Promise<void> {

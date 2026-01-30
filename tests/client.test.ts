@@ -17,6 +17,10 @@ describe('JobBOSS2Client', () => {
         nock.cleanAll();
     });
 
+    afterEach(() => {
+        client.destroy();
+    });
+
     it('should fetch an access token', async () => {
         nock('https://api.jobboss2.com')
             .post('/oauth/token')
@@ -102,7 +106,6 @@ describe('JobBOSS2Client', () => {
     it('should schedule token refresh after fetching token', async () => {
         const scheduleSpy = jest.spyOn(global, 'setTimeout');
 
-        const localClient = new JobBOSS2Client(config);
         nock('https://api.jobboss2.com')
             .post('/oauth/token')
             .reply(200, {
@@ -115,14 +118,17 @@ describe('JobBOSS2Client', () => {
             .get('/api/v1/orders')
             .reply(200, { Data: [] });
 
-        await localClient.getOrders({});
+        const beforeCall = Date.now();
+        await client.getOrders({});
+        const afterCall = Date.now();
 
+        const refreshTimer = (client as unknown as { tokenRefreshTimer?: NodeJS.Timeout }).tokenRefreshTimer;
+        expect(refreshTimer).toBeDefined();
         expect(scheduleSpy).toHaveBeenCalled();
-
-        const refreshTimer = (localClient as unknown as { tokenRefreshTimer?: NodeJS.Timeout }).tokenRefreshTimer;
-        if (refreshTimer) {
-            clearTimeout(refreshTimer);
-        }
+        const delayMs = scheduleSpy.mock.calls[0]?.[1] as number;
+        const expectedDelay = 3240_000;
+        expect(delayMs).toBeGreaterThanOrEqual(expectedDelay - (afterCall - beforeCall));
+        expect(delayMs).toBeLessThanOrEqual(expectedDelay + (afterCall - beforeCall));
 
         scheduleSpy.mockRestore();
     });
