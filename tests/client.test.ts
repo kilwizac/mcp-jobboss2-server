@@ -1,8 +1,9 @@
 import { JobBOSS2Client } from '../src/jobboss2-client';
+import type { JobBOSS2Config } from '../src/types';
 import nock from 'nock';
 
 describe('JobBOSS2Client', () => {
-    const config = {
+    const config: JobBOSS2Config = {
         apiUrl: 'https://api.jobboss2.com',
         apiKey: 'test-key',
         apiSecret: 'test-secret',
@@ -96,5 +97,33 @@ describe('JobBOSS2Client', () => {
 
     it('should reject unsafe custom API endpoints', async () => {
         await expect(client.apiCall('GET', '../orders')).rejects.toThrow('Invalid endpoint path');
+    });
+
+    it('should schedule token refresh after fetching token', async () => {
+        const scheduleSpy = jest.spyOn(global, 'setTimeout');
+
+        const localClient = new JobBOSS2Client(config);
+        nock('https://api.jobboss2.com')
+            .post('/oauth/token')
+            .reply(200, {
+                access_token: 'mock-access-token',
+                expires_in: 3600,
+                token_type: 'Bearer',
+            });
+
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/orders')
+            .reply(200, { Data: [] });
+
+        await localClient.getOrders({});
+
+        expect(scheduleSpy).toHaveBeenCalled();
+
+        const refreshTimer = (localClient as unknown as { tokenRefreshTimer?: NodeJS.Timeout }).tokenRefreshTimer;
+        if (refreshTimer) {
+            clearTimeout(refreshTimer);
+        }
+
+        scheduleSpy.mockRestore();
     });
 });
