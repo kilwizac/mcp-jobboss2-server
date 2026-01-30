@@ -6,6 +6,11 @@ import { customerHandlers } from '../src/tools/customers';
 const mockClient = {
     getOrders: jest.fn(),
     createOrder: jest.fn(),
+    getOrderById: jest.fn(),
+    getOrderLineItems: jest.fn(),
+    getOrderRoutings: jest.fn(),
+    getQuoteById: jest.fn(),
+    getQuoteLineItems: jest.fn(),
     getCustomers: jest.fn(),
 } as unknown as JobBOSS2Client;
 
@@ -35,6 +40,37 @@ describe('Server Handlers', () => {
 
             expect(mockClient.createOrder).toHaveBeenCalledWith(args);
             expect(result).toEqual(mockResult);
+        });
+
+        it('get_order_bundle should request order and line items', async () => {
+            const args = { orderNumber: 'ORD1', includeRoutings: false };
+            const mockOrder = { orderNumber: 'ORD1' };
+            const mockLineItems = [{ itemNumber: 1 }];
+            (mockClient.getOrderById as jest.Mock).mockResolvedValue(mockOrder);
+            (mockClient.getOrderLineItems as jest.Mock).mockResolvedValue(mockLineItems);
+
+            const result = await orderHandlers.get_order_bundle(args, mockClient);
+
+            expect(mockClient.getOrderById).toHaveBeenCalledWith('ORD1', undefined);
+            expect(mockClient.getOrderLineItems).toHaveBeenCalledWith('ORD1', undefined);
+            expect(mockClient.getOrderRoutings).not.toHaveBeenCalled();
+            expect(result).toEqual({ order: mockOrder, lineItems: mockLineItems, routings: undefined });
+        });
+
+        it('create_order_from_quote should fetch quote and line items', async () => {
+            const args = { quoteNumber: 'Q1', customerCode: 'CUST1' };
+            (mockClient.getQuoteById as jest.Mock).mockResolvedValue({ customerCode: 'CUST1' });
+            (mockClient.getQuoteLineItems as jest.Mock).mockResolvedValue([]);
+            (mockClient.createOrder as jest.Mock).mockResolvedValue({ orderNumber: 'ORD2' });
+
+            const result = await orderHandlers.create_order_from_quote(args, mockClient);
+
+            expect(mockClient.getQuoteById).toHaveBeenCalledWith('Q1');
+            expect(mockClient.getQuoteLineItems).toHaveBeenCalledWith({ quoteNumber: 'Q1' });
+            expect(mockClient.createOrder).toHaveBeenCalledWith(expect.objectContaining({ customerCode: 'CUST1' }));
+            expect(result).toEqual(
+                expect.objectContaining({ success: true, order: { orderNumber: 'ORD2' }, lineItemsCopied: 0 })
+            );
         });
     });
 

@@ -374,16 +374,14 @@ export const orderHandlers: Record<string, (args: any, client: JobBOSS2Client) =
     get_order_bundle: async (args, client) => {
         const { orderNumber, fields, lineItemFields, routingFields, includeRoutings = true } = GetOrderBundleSchema.parse(args);
         
-        // Fetch order header
-        const order = await client.getOrderById(orderNumber, fields ? { fields } : undefined);
-        
-        // Fetch line items
-        const lineItems = await client.getOrderLineItems(orderNumber, lineItemFields ? { fields: lineItemFields } : undefined);
-        
-        // Optionally fetch routings for each line item
-        let routings: any[] = [];
+        const [order, lineItems] = await Promise.all([
+            client.getOrderById(orderNumber, fields ? { fields } : undefined),
+            client.getOrderLineItems(orderNumber, lineItemFields ? { fields: lineItemFields } : undefined),
+        ]);
+
+        let routings: any[] | undefined;
         if (includeRoutings && Array.isArray(lineItems)) {
-            const routingParams: any = { [`orderNumber`]: orderNumber };
+            const routingParams: any = { orderNumber };
             if (routingFields) routingParams.fields = routingFields;
             routings = await client.getOrderRoutings(routingParams);
         }
@@ -397,11 +395,10 @@ export const orderHandlers: Record<string, (args: any, client: JobBOSS2Client) =
     create_order_from_quote: async (args, client) => {
         const { quoteNumber, customerCode, orderNumber, copyAllLineItems = true, lineItemNumbers, overrides = {} } = CreateOrderFromQuoteSchema.parse(args);
         
-        // Fetch the quote
-        const quote = await client.getQuoteById(quoteNumber);
-        
-        // Fetch quote line items
-        const allQuoteLineItems = await client.getQuoteLineItems({ quoteNumber });
+        const [quote, allQuoteLineItems] = await Promise.all([
+            client.getQuoteById(quoteNumber),
+            client.getQuoteLineItems({ quoteNumber }),
+        ]);
         
         // Filter line items if specific ones requested
         let lineItemsToCopy = allQuoteLineItems;
