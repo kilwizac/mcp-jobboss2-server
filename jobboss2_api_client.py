@@ -62,7 +62,11 @@ class JobBOSS2Client:
         data = response.json()
         self.access_token = data["access_token"]
         # Set expiry with safety buffer, clamped to avoid negative expiry for short-lived tokens
-        # Use half the token lifetime as buffer, but ensure the token is valid for at least 1 second
+        # Strategy: Use half the token lifetime as buffer (max 5 min), ensuring token stays valid
+        # for at least 1 second. For example:
+        # - 3600s token: buffer = 300s (max), valid for 3300s
+        # - 600s token: buffer = 299s (half of 599), valid for 301s
+        # - 2s token: buffer = 0s (half of 1), valid for 2s
         expires_in = data["expires_in"]
         buffer = min(MAX_TOKEN_BUFFER_SECONDS, max(0, (expires_in - 1) // 2))
         self.token_expiry = time.time() + (expires_in - buffer)
