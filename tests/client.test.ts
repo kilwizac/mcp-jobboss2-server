@@ -103,6 +103,40 @@ describe('JobBOSS2Client', () => {
         await expect(client.apiCall('GET', '../orders')).rejects.toThrow('Invalid endpoint path');
     });
 
+    it('should encode path parameters to prevent path traversal', async () => {
+        nock('https://api.jobboss2.com')
+            .post('/oauth/token')
+            .reply(200, {
+                access_token: 'mock-access-token',
+                expires_in: 3600,
+            });
+
+        // The encoded path should be /api/v1/orders/..%2F..%2Fcustomers%2FACME
+        // NOT /api/v1/orders/../../customers/ACME (which would resolve to /api/v1/customers/ACME)
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/orders/..%2F..%2Fcustomers%2FACME')
+            .reply(200, { Data: { orderNumber: 'safe' } });
+
+        const result = await client.getOrderById('../../customers/ACME');
+        expect(result).toEqual({ orderNumber: 'safe' });
+    });
+
+    it('should encode special characters in path parameters', async () => {
+        nock('https://api.jobboss2.com')
+            .post('/oauth/token')
+            .reply(200, {
+                access_token: 'mock-access-token',
+                expires_in: 3600,
+            });
+
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/customers/ACME%20INC')
+            .reply(200, { Data: { customerCode: 'ACME INC' } });
+
+        const result = await client.getCustomerById('ACME INC');
+        expect(result).toEqual({ customerCode: 'ACME INC' });
+    });
+
     it('should schedule token refresh after fetching token', async () => {
         nock('https://api.jobboss2.com')
             .post('/oauth/token')
