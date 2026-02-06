@@ -403,8 +403,9 @@ export const orderHandlers: Record<string, (args: any, client: JobBOSS2Client) =
         // Filter line items if specific ones requested
         let lineItemsToCopy = allQuoteLineItems;
         if (!copyAllLineItems && lineItemNumbers && lineItemNumbers.length > 0) {
+            const lineItemSet = new Set(lineItemNumbers);
             lineItemsToCopy = allQuoteLineItems.filter((item: any) => 
-                lineItemNumbers.includes(item.itemNumber)
+                lineItemSet.has(item.itemNumber)
             );
         }
         

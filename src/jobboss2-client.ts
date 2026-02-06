@@ -39,6 +39,9 @@ import type {
   AttendanceTicketDetail
 } from './types.js';
 
+const ALLOWED_METHODS = new Set(['GET', 'POST', 'PUT', 'DELETE', 'PATCH']);
+const URL_SCHEME_RE = /^[a-z][a-z0-9+.-]*:\/\//i;
+
 export class JobBOSS2Client {
   private client: AxiosInstance;
   private apiKey: string;
@@ -186,8 +189,7 @@ export class JobBOSS2Client {
 
   private normalizeMethod(method: string): string {
     const normalized = method.toUpperCase();
-    const allowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-    if (!allowedMethods.includes(normalized)) {
+    if (!ALLOWED_METHODS.has(normalized)) {
       throw new Error(`Invalid HTTP method: ${method}`);
     }
     return normalized;
@@ -198,7 +200,7 @@ export class JobBOSS2Client {
     if (!trimmed) {
       throw new Error('Endpoint is required');
     }
-    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed)) {
+    if (URL_SCHEME_RE.test(trimmed)) {
       throw new Error('Endpoint must be a relative path');
     }
 

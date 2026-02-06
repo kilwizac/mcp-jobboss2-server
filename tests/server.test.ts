@@ -1,6 +1,7 @@
 import { JobBOSS2Client } from '../src/jobboss2-client';
 import { orderHandlers } from '../src/tools/orders';
 import { customerHandlers } from '../src/tools/customers';
+import { inventoryHandlers } from '../src/tools/inventory';
 
 // Mock the client
 const mockClient = {
@@ -12,6 +13,9 @@ const mockClient = {
     getQuoteById: jest.fn(),
     getQuoteLineItems: jest.fn(),
     getCustomers: jest.fn(),
+    getPurchaseOrderByNumber: jest.fn(),
+    getPurchaseOrderLineItems: jest.fn(),
+    getPurchaseOrderReleases: jest.fn(),
 } as unknown as JobBOSS2Client;
 
 describe('Server Handlers', () => {
@@ -88,6 +92,68 @@ describe('Server Handlers', () => {
             expect(result).toEqual(
                 expect.objectContaining({ success: true, order: { orderNumber: 'ORD2' }, lineItemsCopied: 0 })
             );
+        });
+        it('create_order_from_quote should filter line items using specific numbers', async () => {
+            const args = { quoteNumber: 'Q2', copyAllLineItems: false, lineItemNumbers: [1, 3] };
+            const mockQuote = { customerCode: 'CUST2' };
+            const allLineItems = [
+                { itemNumber: 1, partNumber: 'P1', quantity1: 5, price1: 10 },
+                { itemNumber: 2, partNumber: 'P2', quantity1: 3, price1: 20 },
+                { itemNumber: 3, partNumber: 'P3', quantity1: 7, price1: 15 },
+            ];
+            (mockClient.getQuoteById as jest.Mock).mockResolvedValue(mockQuote);
+            (mockClient.getQuoteLineItems as jest.Mock).mockResolvedValue(allLineItems);
+            (mockClient.createOrder as jest.Mock).mockResolvedValue({ orderNumber: 'ORD3' });
+
+            const result = await orderHandlers.create_order_from_quote(args, mockClient);
+
+            expect(result.lineItemsCopied).toBe(2);
+            const createCall = (mockClient.createOrder as jest.Mock).mock.calls[0][0];
+            expect(createCall.orderLineItems).toHaveLength(2);
+            expect(createCall.orderLineItems[0].partNumber).toBe('P1');
+            expect(createCall.orderLineItems[1].partNumber).toBe('P3');
+        });
+    });
+
+    describe('Inventory Handlers', () => {
+        it('get_po_bundle should fetch PO header, line items and releases in parallel', async () => {
+            const args = { poNumber: 'PO1' };
+            const mockPO = { poNumber: 'PO1' };
+            const mockLineItems = [{ partNumber: 'P1' }];
+            const mockReleases = [{ releaseId: 1 }];
+            (mockClient.getPurchaseOrderByNumber as jest.Mock).mockResolvedValue(mockPO);
+            (mockClient.getPurchaseOrderLineItems as jest.Mock).mockResolvedValue(mockLineItems);
+            (mockClient.getPurchaseOrderReleases as jest.Mock).mockResolvedValue(mockReleases);
+
+            const result = await inventoryHandlers.get_po_bundle(args, mockClient);
+
+            expect(mockClient.getPurchaseOrderByNumber).toHaveBeenCalledWith('PO1', undefined);
+            expect(mockClient.getPurchaseOrderLineItems).toHaveBeenCalledWith({ purchaseOrderNumber: 'PO1' });
+            expect(mockClient.getPurchaseOrderReleases).toHaveBeenCalledWith({ purchaseOrderNumber: 'PO1' });
+            expect(result).toEqual({
+                purchaseOrder: mockPO,
+                lineItems: mockLineItems,
+                releases: mockReleases,
+            });
+        });
+
+        it('get_po_bundle should skip releases when includeReleases is false', async () => {
+            const args = { poNumber: 'PO2', includeReleases: false };
+            const mockPO = { poNumber: 'PO2' };
+            const mockLineItems = [{ partNumber: 'P2' }];
+            (mockClient.getPurchaseOrderByNumber as jest.Mock).mockResolvedValue(mockPO);
+            (mockClient.getPurchaseOrderLineItems as jest.Mock).mockResolvedValue(mockLineItems);
+
+            const result = await inventoryHandlers.get_po_bundle(args, mockClient);
+
+            expect(mockClient.getPurchaseOrderByNumber).toHaveBeenCalledWith('PO2', undefined);
+            expect(mockClient.getPurchaseOrderLineItems).toHaveBeenCalledWith({ purchaseOrderNumber: 'PO2' });
+            expect(mockClient.getPurchaseOrderReleases).not.toHaveBeenCalled();
+            expect(result).toEqual({
+                purchaseOrder: mockPO,
+                lineItems: mockLineItems,
+                releases: undefined,
+            });
         });
     });
 

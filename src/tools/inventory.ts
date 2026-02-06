@@ -266,19 +266,15 @@ export const inventoryHandlers: Record<string, (args: any, client: JobBOSS2Clien
     get_po_bundle: async (args, client) => {
         const { poNumber, fields, lineItemFields, includeReleases = true } = GetPOBundleSchema.parse(args);
         
-        // Fetch PO header
-        const purchaseOrder = await client.getPurchaseOrderByNumber(poNumber, fields ? { fields } : undefined);
-        
-        // Fetch line items for this PO
+        // Fetch PO header, line items, and optionally releases in parallel
         const lineItemParams: any = { purchaseOrderNumber: poNumber };
         if (lineItemFields) lineItemParams.fields = lineItemFields;
-        const lineItems = await client.getPurchaseOrderLineItems(lineItemParams);
-        
-        // Optionally fetch releases
-        let releases: any[] = [];
-        if (includeReleases) {
-            releases = await client.getPurchaseOrderReleases({ purchaseOrderNumber: poNumber });
-        }
+
+        const [purchaseOrder, lineItems, releases] = await Promise.all([
+            client.getPurchaseOrderByNumber(poNumber, fields ? { fields } : undefined),
+            client.getPurchaseOrderLineItems(lineItemParams),
+            includeReleases ? client.getPurchaseOrderReleases({ purchaseOrderNumber: poNumber }) : undefined,
+        ]);
         
         return {
             purchaseOrder,
