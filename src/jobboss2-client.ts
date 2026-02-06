@@ -244,7 +244,7 @@ export class JobBOSS2Client {
   }
 
   async getOrderById(orderNumber: string, params?: QueryParams): Promise<Order> {
-    const response = await this.client.get(`/api/v1/orders/${orderNumber}`, { params });
+    const response = await this.client.get(`/api/v1/orders/${encodeURIComponent(orderNumber)}`, { params });
     return this.extractData(response);
   }
 
@@ -254,23 +254,23 @@ export class JobBOSS2Client {
   }
 
   async updateOrder(orderNumber: string, orderData: Partial<Order>): Promise<Order> {
-    const response = await this.client.patch(`/api/v1/orders/${orderNumber}`, orderData);
+    const response = await this.client.patch(`/api/v1/orders/${encodeURIComponent(orderNumber)}`, orderData);
     return this.extractData(response);
   }
 
   // Order Line Item Operations
   async getOrderLineItems(orderNumber: string, params?: QueryParams): Promise<OrderLineItem[]> {
-    const response = await this.client.get(`/api/v1/orders/${orderNumber}/order-line-items`, { params });
+    const response = await this.client.get(`/api/v1/orders/${encodeURIComponent(orderNumber)}/order-line-items`, { params });
     return this.extractData(response);
   }
 
   async getOrderLineItemById(orderNumber: string, itemNumber: number, params?: QueryParams): Promise<OrderLineItem> {
-    const response = await this.client.get(`/api/v1/orders/${orderNumber}/order-line-items/${itemNumber}`, { params });
+    const response = await this.client.get(`/api/v1/orders/${encodeURIComponent(orderNumber)}/order-line-items/${encodeURIComponent(String(itemNumber))}`, { params });
     return this.extractData(response);
   }
 
   async createOrderLineItem(orderNumber: string, itemData: Partial<OrderLineItem>): Promise<OrderLineItem> {
-    const response = await this.client.post(`/api/v1/orders/${orderNumber}/order-line-items`, itemData);
+    const response = await this.client.post(`/api/v1/orders/${encodeURIComponent(orderNumber)}/order-line-items`, itemData);
     return this.extractData(response);
   }
 
@@ -279,7 +279,7 @@ export class JobBOSS2Client {
     itemNumber: number,
     itemData: Partial<OrderLineItemUpdate>
   ): Promise<OrderLineItem> {
-    const response = await this.client.patch(`/api/v1/orders/${orderNumber}/order-line-items/${itemNumber}`, itemData);
+    const response = await this.client.patch(`/api/v1/orders/${encodeURIComponent(orderNumber)}/order-line-items/${encodeURIComponent(String(itemNumber))}`, itemData);
     return this.extractData(response);
   }
 
@@ -295,7 +295,7 @@ export class JobBOSS2Client {
     params?: QueryParams
   ): Promise<OrderRouting> {
     const response = await this.client.get(
-      `/api/v1/orders/${orderNumber}/order-line-items/${itemNumber}/order-routings/${stepNumber}`,
+      `/api/v1/orders/${encodeURIComponent(orderNumber)}/order-line-items/${encodeURIComponent(String(itemNumber))}/order-routings/${encodeURIComponent(String(stepNumber))}`,
       { params }
     );
     return this.extractData(response);
@@ -303,7 +303,7 @@ export class JobBOSS2Client {
 
   async createOrderRouting(orderNumber: string, itemNumber: number, routingData: OrderRoutingCreate): Promise<OrderRouting> {
     const response = await this.client.post(
-      `/api/v1/orders/${orderNumber}/order-line-items/${itemNumber}/order-routings`,
+      `/api/v1/orders/${encodeURIComponent(orderNumber)}/order-line-items/${encodeURIComponent(String(itemNumber))}/order-routings`,
       routingData
     );
     return this.extractData(response);
@@ -316,7 +316,7 @@ export class JobBOSS2Client {
     routingData: Partial<OrderRoutingUpdate>
   ): Promise<OrderRouting> {
     const response = await this.client.patch(
-      `/api/v1/orders/${orderNumber}/order-line-items/${itemNumber}/order-routings/${stepNumber}`,
+      `/api/v1/orders/${encodeURIComponent(orderNumber)}/order-line-items/${encodeURIComponent(String(itemNumber))}/order-routings/${encodeURIComponent(String(stepNumber))}`,
       routingData
     );
     return this.extractData(response);
@@ -329,7 +329,7 @@ export class JobBOSS2Client {
   }
 
   async getCustomerById(customerCode: string, params?: QueryParams): Promise<Customer> {
-    const response = await this.client.get(`/api/v1/customers/${customerCode}`, { params });
+    const response = await this.client.get(`/api/v1/customers/${encodeURIComponent(customerCode)}`, { params });
     return this.extractData(response);
   }
 
@@ -339,7 +339,7 @@ export class JobBOSS2Client {
   }
 
   async updateCustomer(customerCode: string, customerData: Partial<Customer>): Promise<Customer> {
-    const response = await this.client.patch(`/api/v1/customers/${customerCode}`, customerData);
+    const response = await this.client.patch(`/api/v1/customers/${encodeURIComponent(customerCode)}`, customerData);
     return this.extractData(response);
   }
 
@@ -350,7 +350,7 @@ export class JobBOSS2Client {
   }
 
   async getQuoteById(quoteNumber: string, params?: QueryParams): Promise<Quote> {
-    const response = await this.client.get(`/api/v1/quotes/${quoteNumber}`, { params });
+    const response = await this.client.get(`/api/v1/quotes/${encodeURIComponent(quoteNumber)}`, { params });
     return this.extractData(response);
   }
 
@@ -360,7 +360,7 @@ export class JobBOSS2Client {
   }
 
   async updateQuote(quoteNumber: string, quoteData: Partial<Quote>): Promise<Quote> {
-    const response = await this.client.patch(`/api/v1/quotes/${quoteNumber}`, quoteData);
+    const response = await this.client.patch(`/api/v1/quotes/${encodeURIComponent(quoteNumber)}`, quoteData);
     return this.extractData(response);
   }
 
@@ -371,7 +371,7 @@ export class JobBOSS2Client {
   }
 
   async getMaterialByPartNumber(partNumber: string, params?: QueryParams): Promise<Material> {
-    const response = await this.client.get(`/api/v1/materials/${partNumber}`, { params });
+    const response = await this.client.get(`/api/v1/materials/${encodeURIComponent(partNumber)}`, { params });
     return this.extractData(response);
   }
 
@@ -387,7 +387,7 @@ export class JobBOSS2Client {
   }
 
   async getEmployeeById(employeeID: string, params?: QueryParams): Promise<Employee> {
-    const response = await this.client.get(`/api/v1/employees/${employeeID}`, { params });
+    const response = await this.client.get(`/api/v1/employees/${encodeURIComponent(employeeID)}`, { params });
     return this.extractData(response);
   }
 
@@ -398,7 +398,7 @@ export class JobBOSS2Client {
   }
 
   async getEstimateByPartNumber(partNumber: string, params?: QueryParams): Promise<Estimate> {
-    const response = await this.client.get(`/api/v1/estimates/${partNumber}`, { params });
+    const response = await this.client.get(`/api/v1/estimates/${encodeURIComponent(partNumber)}`, { params });
     return this.extractData(response);
   }
 
@@ -408,7 +408,7 @@ export class JobBOSS2Client {
   }
 
   async updateEstimate(partNumber: string, estimateData: Partial<Estimate>): Promise<void> {
-    await this.client.put(`/api/v1/estimates/${partNumber}`, estimateData);
+    await this.client.put(`/api/v1/estimates/${encodeURIComponent(partNumber)}`, estimateData);
     // Update returns 204 No Content, so no data to extract
   }
 
@@ -419,7 +419,7 @@ export class JobBOSS2Client {
   }
 
   async getAttendanceTicketById(ticketDate: string, employeeCode: number, params?: QueryParams): Promise<AttendanceTicket> {
-    const response = await this.client.get(`/api/v1/attendance-tickets/${ticketDate}/employees/${employeeCode}`, { params });
+    const response = await this.client.get(`/api/v1/attendance-tickets/${encodeURIComponent(ticketDate)}/employees/${encodeURIComponent(String(employeeCode))}`, { params });
     return this.extractData(response);
   }
 
@@ -435,12 +435,12 @@ export class JobBOSS2Client {
   }
 
   async createAttendanceTicketDetail(ticketDate: string, employeeCode: number, detailData: Partial<AttendanceTicketDetail>): Promise<AttendanceTicketDetail> {
-    const response = await this.client.post(`/api/v1/attendance-tickets/${ticketDate}/employees/${employeeCode}/attendance-ticket-details`, detailData);
+    const response = await this.client.post(`/api/v1/attendance-tickets/${encodeURIComponent(ticketDate)}/employees/${encodeURIComponent(String(employeeCode))}/attendance-ticket-details`, detailData);
     return this.extractData(response);
   }
 
   async updateAttendanceTicketDetail(id: number, detailData: Partial<AttendanceTicketDetail>): Promise<void> {
-    await this.client.patch(`/api/v1/attendance-ticket-details/${id}`, detailData);
+    await this.client.patch(`/api/v1/attendance-ticket-details/${encodeURIComponent(String(id))}`, detailData);
     // Update returns 204 No Content
   }
 
@@ -484,7 +484,7 @@ export class JobBOSS2Client {
   }
 
   async getJobMaterialById(uniqueID: string, params?: QueryParams): Promise<JobMaterial> {
-    const response = await this.client.get(`/api/v1/job-materials/${uniqueID}`, { params });
+    const response = await this.client.get(`/api/v1/job-materials/${encodeURIComponent(uniqueID)}`, { params });
     return this.extractData(response);
   }
 
@@ -494,7 +494,7 @@ export class JobBOSS2Client {
   }
 
   async getJobRequirementById(uniqueID: string, params?: QueryParams): Promise<JobRequirement> {
-    const response = await this.client.get(`/api/v1/job-requirements/${uniqueID}`, { params });
+    const response = await this.client.get(`/api/v1/job-requirements/${encodeURIComponent(uniqueID)}`, { params });
     return this.extractData(response);
   }
 
@@ -516,7 +516,7 @@ export class JobBOSS2Client {
   }
 
   async getProductCode(productCode: string, params?: QueryParams): Promise<ProductCode> {
-    const response = await this.client.get(`/api/v1/product-codes/${productCode}`, { params });
+    const response = await this.client.get(`/api/v1/product-codes/${encodeURIComponent(productCode)}`, { params });
     return this.extractData(response);
   }
 
@@ -533,7 +533,7 @@ export class JobBOSS2Client {
     params?: QueryParams
   ): Promise<PurchaseOrderLineItem> {
     const response = await this.client.get(
-      `/api/v1/purchase-order-line-items/${purchaseOrderNumber}/${partNumber}/${itemNumber}`,
+      `/api/v1/purchase-order-line-items/${encodeURIComponent(purchaseOrderNumber)}/${encodeURIComponent(partNumber)}/${encodeURIComponent(String(itemNumber))}`,
       { params }
     );
     return this.extractData(response);
@@ -550,7 +550,7 @@ export class JobBOSS2Client {
   }
 
   async getPurchaseOrderByNumber(poNumber: string, params?: QueryParams): Promise<PurchaseOrder> {
-    const response = await this.client.get(`/api/v1/purchase-orders/${poNumber}`, { params });
+    const response = await this.client.get(`/api/v1/purchase-orders/${encodeURIComponent(poNumber)}`, { params });
     return this.extractData(response);
   }
 
@@ -561,12 +561,12 @@ export class JobBOSS2Client {
   }
 
   async getQuoteLineItem(quoteNumber: string, itemNumber: number | string, params?: QueryParams): Promise<QuoteLineItem> {
-    const response = await this.client.get(`/api/v1/quotes/${quoteNumber}/quote-line-item/${itemNumber}`, { params });
+    const response = await this.client.get(`/api/v1/quotes/${encodeURIComponent(quoteNumber)}/quote-line-item/${encodeURIComponent(String(itemNumber))}`, { params });
     return this.extractData(response);
   }
 
   async createQuoteLineItem(quoteNumber: string, payload: Partial<QuoteLineItem>): Promise<QuoteLineItem> {
-    const response = await this.client.post(`/api/v1/quotes/${quoteNumber}/quote-line-items`, payload);
+    const response = await this.client.post(`/api/v1/quotes/${encodeURIComponent(quoteNumber)}/quote-line-items`, payload);
     return this.extractData(response);
   }
 
@@ -576,7 +576,7 @@ export class JobBOSS2Client {
     payload: Partial<QuoteLineItem>
   ): Promise<QuoteLineItem> {
     const response = await this.client.patch(
-      `/api/v1/quotes/${quoteNumber}/quote-line-items/${itemNumber}`,
+      `/api/v1/quotes/${encodeURIComponent(quoteNumber)}/quote-line-items/${encodeURIComponent(String(itemNumber))}`,
       payload
     );
     return this.extractData(response);
@@ -589,7 +589,7 @@ export class JobBOSS2Client {
   }
 
   async getRoutingByPartNumber(partNumber: string, stepNumber: number | string, params?: QueryParams): Promise<OrderRouting> {
-    const response = await this.client.get(`/api/v1/estimates/${partNumber}/routings/${stepNumber}`, { params });
+    const response = await this.client.get(`/api/v1/estimates/${encodeURIComponent(partNumber)}/routings/${encodeURIComponent(String(stepNumber))}`, { params });
     return this.extractData(response);
   }
 
@@ -600,7 +600,7 @@ export class JobBOSS2Client {
   }
 
   async getReportRequest(requestId: string): Promise<ReportSubmissionResult> {
-    const response = await this.client.get(`/api/v1/reports/${requestId}`);
+    const response = await this.client.get(`/api/v1/reports/${encodeURIComponent(requestId)}`);
     return this.extractData(response);
   }
 
@@ -617,7 +617,7 @@ export class JobBOSS2Client {
   }
 
   async getTimeTicketDetailByGuid(timeTicketGUID: string, params?: QueryParams): Promise<TimeTicketDetail> {
-    const response = await this.client.get(`/api/v1/time-ticket-details/${timeTicketGUID}`, { params });
+    const response = await this.client.get(`/api/v1/time-ticket-details/${encodeURIComponent(timeTicketGUID)}`, { params });
     return this.extractData(response);
   }
 
@@ -628,7 +628,7 @@ export class JobBOSS2Client {
 
   async getTimeTicketById(ticketDate: string, employeeCode: string | number, params?: QueryParams): Promise<TimeTicket> {
     const response = await this.client.get(
-      `/api/v1/time-tickets/${ticketDate}/employees/${employeeCode}`,
+      `/api/v1/time-tickets/${encodeURIComponent(ticketDate)}/employees/${encodeURIComponent(String(employeeCode))}`,
       { params }
     );
     return this.extractData(response);
@@ -641,7 +641,7 @@ export class JobBOSS2Client {
   }
 
   async getVendorByCode(vendorCode: string, params?: QueryParams): Promise<Vendor> {
-    const response = await this.client.get(`/api/v1/vendors/${vendorCode}`, { params });
+    const response = await this.client.get(`/api/v1/vendors/${encodeURIComponent(vendorCode)}`, { params });
     return this.extractData(response);
   }
 
@@ -652,7 +652,7 @@ export class JobBOSS2Client {
   }
 
   async getWorkCenterByCode(workCenter: string, params?: QueryParams): Promise<WorkCenter> {
-    const response = await this.client.get(`/api/v1/work-centers/${workCenter}`, { params });
+    const response = await this.client.get(`/api/v1/work-centers/${encodeURIComponent(workCenter)}`, { params });
     return this.extractData(response);
   }
 
