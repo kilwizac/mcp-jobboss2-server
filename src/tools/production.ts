@@ -9,6 +9,7 @@ import {
     GetWorkCenterByCodeSchema,
     QueryOnlyToolInputSchema,
     GetEstimateMaterialBySubPartSchema,
+    QueryParamsSchema,
 } from '../schemas.js';
 
 export const productionTools: Tool[] = [
@@ -152,14 +153,16 @@ export const productionHandlers: Record<string, (args: any, client: JobBOSS2Clie
         return { success: true }; // updateEstimate returns void
     },
     get_routings: async (args, client) => {
-        return client.getRoutings(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getRoutings(params);
     },
     get_routing_by_part_number: async (args, client) => {
         const { partNumber, stepNumber, fields } = GetRoutingByPartSchema.parse(args);
         return client.getRoutingByPartNumber(partNumber, stepNumber, { fields });
     },
     get_work_centers: async (args, client) => {
-        return client.getWorkCenters(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getWorkCenters(params);
     },
     get_work_center_by_code: async (args, client) => {
         const { workCenter, fields } = GetWorkCenterByCodeSchema.parse(args);

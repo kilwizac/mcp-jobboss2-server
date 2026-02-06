@@ -1,3 +1,4 @@
+import asyncio
 import httpx
 import time
 from typing import Any, Dict, List, Optional
@@ -26,41 +27,64 @@ class JobBOSS2Client:
                 "Accept": "application/json",
             },
         )
+        self.auth_client = httpx.AsyncClient(timeout=config.timeout)
+        self._refresh_lock = asyncio.Lock()
+        self._refresh_task: Optional[asyncio.Task] = None
 
     async def __aenter__(self):
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.client.aclose()
+        try:
+            await self.client.aclose()
+        finally:
+            await self.auth_client.aclose()
 
     async def fetch_access_token(self) -> None:
-        async with httpx.AsyncClient() as auth_client:
-            response = await auth_client.post(
-                self.config.token_url,
-                data={
-                    "grant_type": "client_credentials",
-                    "client_id": self.config.api_key,
-                    "client_secret": self.config.api_secret,
-                },
-                headers={"Content-Type": "application/x-www-form-urlencoded"},
+        response = await self.auth_client.post(
+            self.config.token_url,
+            data={
+                "grant_type": "client_credentials",
+                "client_id": self.config.api_key,
+                "client_secret": self.config.api_secret,
+            },
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+
+        if response.status_code != 200:
+            raise Exception(
+                f"OAuth2 Token Error: {response.status_code} - {response.text}"
             )
 
-            if response.status_code != 200:
-                raise Exception(
-                    f"OAuth2 Token Error: {response.status_code} - {response.text}"
-                )
-
-            data = response.json()
-            self.access_token = data["access_token"]
-            # Set expiry to 5 minutes before actual expiry for safety
-            self.token_expiry = time.time() + (data["expires_in"] - 300)
+        data = response.json()
+        self.access_token = data["access_token"]
+        # Set expiry to 5 minutes before actual expiry for safety
+        self.token_expiry = time.time() + (data["expires_in"] - 300)
 
     def is_token_expired(self) -> bool:
         return not self.access_token or time.time() >= self.token_expiry
 
     async def ensure_valid_token(self) -> None:
-        if self.is_token_expired():
-            await self.fetch_access_token()
+        if not self.is_token_expired():
+            return
+
+        refresh_task: Optional[asyncio.Task] = None
+        async with self._refresh_lock:
+            if not self.is_token_expired():
+                return
+            if self._refresh_task is None or self._refresh_task.done():
+                self._refresh_task = asyncio.create_task(self.fetch_access_token())
+            refresh_task = self._refresh_task
+
+        if refresh_task is None:
+            return
+
+        try:
+            await refresh_task
+        finally:
+            async with self._refresh_lock:
+                if self._refresh_task is refresh_task and refresh_task.done():
+                    self._refresh_task = None
 
     async def api_call(
         self,

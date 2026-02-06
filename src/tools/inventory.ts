@@ -11,6 +11,7 @@ import {
     GetPurchaseOrderByNumberSchema,
     GetVendorByCodeSchema,
     QueryOnlyToolInputSchema,
+    QueryParamsSchema,
     GetPOBundleSchema,
 } from '../schemas.js';
 
@@ -213,51 +214,60 @@ export const inventoryHandlers: Record<string, (args: any, client: JobBOSS2Clien
         return client.getBinLocations(params);
     },
     get_job_materials: async (args, client) => {
-        return client.getJobMaterials(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getJobMaterials(params);
     },
     get_job_material_by_id: async (args, client) => {
         const { uniqueID, fields } = GetJobMaterialByIdSchema.parse(args);
         return client.getJobMaterialById(uniqueID, { fields });
     },
     get_job_requirements: async (args, client) => {
-        return client.getJobRequirements(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getJobRequirements(params);
     },
     get_job_requirement_by_id: async (args, client) => {
         const { uniqueID, fields } = GetJobRequirementByIdSchema.parse(args);
         return client.getJobRequirementById(uniqueID, { fields });
     },
     get_packing_list_line_items: async (args, client) => {
-        return client.getPackingListLineItems(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getPackingListLineItems(params);
     },
     get_packing_lists: async (args, client) => {
-        return client.getPackingLists(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getPackingLists(params);
     },
     get_product_codes: async (args, client) => {
-        return client.getProductCodes(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getProductCodes(params);
     },
     get_product_code: async (args, client) => {
         const { productCode, fields } = GetProductCodeSchema.parse(args);
         return client.getProductCode(productCode, { fields });
     },
     get_purchase_order_line_items: async (args, client) => {
-        return client.getPurchaseOrderLineItems(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getPurchaseOrderLineItems(params);
     },
     get_purchase_order_line_item: async (args, client) => {
         const { purchaseOrderNumber, partNumber, itemNumber, fields } = GetPurchaseOrderLineItemSchema.parse(args);
         return client.getPurchaseOrderLineItem(purchaseOrderNumber, partNumber, itemNumber, { fields });
     },
     get_purchase_order_releases: async (args, client) => {
-        return client.getPurchaseOrderReleases(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getPurchaseOrderReleases(params);
     },
     get_purchase_orders: async (args, client) => {
-        return client.getPurchaseOrders(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getPurchaseOrders(params);
     },
     get_purchase_order_by_number: async (args, client) => {
         const { poNumber, fields } = GetPurchaseOrderByNumberSchema.parse(args);
         return client.getPurchaseOrderByNumber(poNumber, { fields });
     },
     get_vendors: async (args, client) => {
-        return client.getVendors(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getVendors(params);
     },
     get_vendor_by_code: async (args, client) => {
         const { vendorCode, fields } = GetVendorByCodeSchema.parse(args);

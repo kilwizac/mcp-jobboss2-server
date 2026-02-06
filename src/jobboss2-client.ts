@@ -101,6 +101,23 @@ export class JobBOSS2Client {
   }
 
   // OAuth2 Token Management
+  private computeTokenTiming(expiresInSec: number, nowMs: number = Date.now()): {
+    safetyMs: number;
+    usableLifetimeMs: number;
+    usableExpiryMs: number;
+  } {
+    const normalizedExpiresInSec = Number.isFinite(expiresInSec) ? Math.max(expiresInSec, 0) : 0;
+    const expiresMs = Math.floor(normalizedExpiresInSec * 1000);
+    const safetyMs = Math.min(300_000, Math.max(5_000, Math.floor(expiresMs * 0.1)));
+    const usableLifetimeMs = Math.max(expiresMs - safetyMs, 1_000);
+
+    return {
+      safetyMs,
+      usableLifetimeMs,
+      usableExpiryMs: nowMs + usableLifetimeMs,
+    };
+  }
+
   private async fetchAccessToken(): Promise<void> {
     if (this.refreshPromise) {
       return this.refreshPromise;
@@ -124,8 +141,8 @@ export class JobBOSS2Client {
         );
 
         this.accessToken = response.data.access_token;
-        // Set expiry to 5 minutes before actual expiry for safety
-        this.tokenExpiry = Date.now() + (response.data.expires_in - 300) * 1000;
+        const tokenTiming = this.computeTokenTiming(response.data.expires_in);
+        this.tokenExpiry = tokenTiming.usableExpiryMs;
         this.scheduleTokenRefresh();
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -158,8 +175,7 @@ export class JobBOSS2Client {
       clearTimeout(this.tokenRefreshTimer);
     }
 
-    const refreshAt = this.tokenExpiry - 60_000;
-    const delayMs = Math.max(refreshAt - Date.now(), 1_000);
+    const delayMs = Math.max(this.tokenExpiry - Date.now(), 1_000);
 
     this.tokenRefreshTimer = setTimeout(async () => {
       if (this.isRefreshing) {

@@ -104,8 +104,6 @@ describe('JobBOSS2Client', () => {
     });
 
     it('should schedule token refresh after fetching token', async () => {
-        const scheduleSpy = jest.spyOn(global, 'setTimeout');
-
         nock('https://api.jobboss2.com')
             .post('/oauth/token')
             .reply(200, {
@@ -124,12 +122,59 @@ describe('JobBOSS2Client', () => {
 
         const refreshTimer = (client as unknown as { tokenRefreshTimer?: NodeJS.Timeout }).tokenRefreshTimer;
         expect(refreshTimer).toBeDefined();
-        expect(scheduleSpy).toHaveBeenCalled();
-        const delayMs = scheduleSpy.mock.calls[0]?.[1] as number;
-        const expectedDelay = 3240_000;
+        const delayMs = (refreshTimer as unknown as { _idleTimeout?: number })._idleTimeout as number;
+        const expectedDelay = 3300_000;
         expect(delayMs).toBeGreaterThanOrEqual(expectedDelay - (afterCall - beforeCall));
         expect(delayMs).toBeLessThanOrEqual(expectedDelay + (afterCall - beforeCall));
+    });
 
-        scheduleSpy.mockRestore();
+    it('should keep a usable refresh window for short-lived tokens', async () => {
+        nock('https://api.jobboss2.com')
+            .post('/oauth/token')
+            .reply(200, {
+                access_token: 'mock-access-token',
+                expires_in: 30,
+                token_type: 'Bearer',
+            });
+
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/orders')
+            .reply(200, { Data: [] });
+
+        const beforeCall = Date.now();
+        await client.getOrders({});
+        const afterCall = Date.now();
+
+        const refreshTimer = (client as unknown as { tokenRefreshTimer?: NodeJS.Timeout }).tokenRefreshTimer;
+        expect(refreshTimer).toBeDefined();
+        const delayMs = (refreshTimer as unknown as { _idleTimeout?: number })._idleTimeout as number;
+        const expectedDelay = 25_000;
+        expect(delayMs).toBeGreaterThanOrEqual(expectedDelay - (afterCall - beforeCall));
+        expect(delayMs).toBeLessThanOrEqual(expectedDelay + (afterCall - beforeCall));
+    });
+
+    it('should clamp very short token lifetimes to a minimum one-second window', async () => {
+        nock('https://api.jobboss2.com')
+            .post('/oauth/token')
+            .reply(200, {
+                access_token: 'mock-access-token',
+                expires_in: 5,
+                token_type: 'Bearer',
+            });
+
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/orders')
+            .reply(200, { Data: [] });
+
+        const beforeCall = Date.now();
+        await client.getOrders({});
+        const afterCall = Date.now();
+
+        const refreshTimer = (client as unknown as { tokenRefreshTimer?: NodeJS.Timeout }).tokenRefreshTimer;
+        expect(refreshTimer).toBeDefined();
+        const delayMs = (refreshTimer as unknown as { _idleTimeout?: number })._idleTimeout as number;
+        const minDelay = 1_000;
+        expect(delayMs).toBeGreaterThanOrEqual(minDelay);
+        expect(delayMs).toBeLessThanOrEqual(2_000);
     });
 });
