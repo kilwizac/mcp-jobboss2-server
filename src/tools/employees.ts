@@ -13,6 +13,7 @@ import {
     GetTimeTicketDetailByIdSchema,
     GetTimeTicketByIdSchema,
     QueryOnlyToolInputSchema,
+    QueryParamsSchema,
 } from '../schemas.js';
 
 export const employeeTools: Tool[] = [
@@ -243,17 +244,20 @@ export const employeeHandlers: Record<string, (args: any, client: JobBOSS2Client
         return client.getAttendanceReport(startDate, endDate, employeeCodes);
     },
     get_salespersons: async (args, client) => {
-        return client.getSalespersons(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getSalespersons(params);
     },
     get_time_ticket_details: async (args, client) => {
-        return client.getTimeTicketDetails(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getTimeTicketDetails(params);
     },
     get_time_ticket_detail_by_id: async (args, client) => {
         const { timeTicketGUID, fields } = GetTimeTicketDetailByIdSchema.parse(args);
         return client.getTimeTicketDetailByGuid(timeTicketGUID, { fields });
     },
     get_time_tickets: async (args, client) => {
-        return client.getTimeTickets(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getTimeTickets(params);
     },
     get_time_ticket_by_id: async (args, client) => {
         const { ticketDate, employeeCode, fields } = GetTimeTicketByIdSchema.parse(args);

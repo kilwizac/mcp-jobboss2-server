@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any, Dict, List, Optional, Union
 from fastmcp import FastMCP
 from jobboss2_api_client import JobBOSS2Client
@@ -153,24 +154,27 @@ def register_inventory_tools(mcp: FastMCP, client: JobBOSS2Client):
         includeReleases: bool = True,
     ) -> Dict[str, Any]:
         """Retrieve a purchase order with its line items and optionally releases in a single call. Returns a complete bundle for the PO."""
-        # Fetch PO header
         po_params = {"fields": fields} if fields else None
-        purchase_order = await client.api_call("GET", f"purchase-orders/{poNumber}", params=po_params)
-        
-        # Fetch line items for this PO
         li_params: Dict[str, Any] = {"purchaseOrderNumber": poNumber}
         if lineItemFields:
             li_params["fields"] = lineItemFields
-        line_items = await client.api_call("GET", "purchase-order-line-items", params=li_params)
-        
-        # Optionally fetch releases
-        releases = []
+        requests = [
+            client.api_call("GET", f"purchase-orders/{poNumber}", params=po_params),
+            client.api_call("GET", "purchase-order-line-items", params=li_params),
+        ]
         if includeReleases:
-            releases = await client.api_call("GET", "purchase-order-releases", params={"purchaseOrderNumber": poNumber})
-        
+            requests.append(
+                client.api_call("GET", "purchase-order-releases", params={"purchaseOrderNumber": poNumber})
+            )
+
+        results = await asyncio.gather(*requests)
+        purchase_order = results[0]
+        line_items = results[1]
+        releases = results[2] if includeReleases else None
+
         return {
             "purchaseOrder": purchase_order,
             "lineItems": line_items,
-            "releases": releases if includeReleases else None,
+            "releases": releases,
         }
 

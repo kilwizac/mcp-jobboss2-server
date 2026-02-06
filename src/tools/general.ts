@@ -5,6 +5,7 @@ import {
     RunReportSchema,
     GetReportStatusSchema,
     QueryOnlyToolInputSchema,
+    QueryParamsSchema,
 } from '../schemas.js';
 
 export const generalTools: Tool[] = [
@@ -83,12 +84,15 @@ export const generalHandlers: Record<string, (args: any, client: JobBOSS2Client)
         return client.getReportRequest(requestId);
     },
     get_document_controls: async (args, client) => {
-        return client.getDocumentControls(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getDocumentControls(params);
     },
     get_document_histories: async (args, client) => {
-        return client.getDocumentHistories(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getDocumentHistories(params);
     },
     get_document_reviews: async (args, client) => {
-        return client.getDocumentReviews(args);
+        const params = QueryParamsSchema.parse(args);
+        return client.getDocumentReviews(params);
     },
 };

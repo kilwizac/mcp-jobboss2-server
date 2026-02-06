@@ -12,7 +12,7 @@ import { employeeTools, employeeHandlers } from "../tools/employees.js";
 import { generalTools, generalHandlers } from "../tools/general.js";
 import { generatedToolConfigs } from "../tools/generated.js";
 
-const toolSchemaMap: Record<string, any> = {
+export const toolSchemaMap: Record<string, any> = {
   // Orders
   get_orders: schemas.GetOrdersSchema,
   get_order_by_id: schemas.GetOrderByIdSchema,
@@ -26,8 +26,11 @@ const toolSchemaMap: Record<string, any> = {
   get_order_routing: schemas.GetOrderRoutingByKeysSchema,
   create_order_routing: schemas.CreateOrderRoutingSchema,
   update_order_routing: schemas.UpdateOrderRoutingSchema,
-  create_order_release: schemas.AnyObjectSchema,
-  get_order_release_by_id: schemas.AnyObjectSchema,
+  get_order_releases: schemas.GetOrderReleasesSchema,
+  create_order_release: schemas.CreateOrderReleaseSchema,
+  get_order_release_by_id: schemas.GetOrderReleaseByIdSchema,
+  get_order_bundle: schemas.GetOrderBundleSchema,
+  create_order_from_quote: schemas.CreateOrderFromQuoteSchema,
 
   // Customers
   get_customers: schemas.GetCustomersSchema,
@@ -64,6 +67,7 @@ const toolSchemaMap: Record<string, any> = {
   get_purchase_order_by_number: schemas.GetPurchaseOrderByNumberSchema,
   get_vendors: schemas.QueryParamsSchema,
   get_vendor_by_code: schemas.GetVendorByCodeSchema,
+  get_po_bundle: schemas.GetPOBundleSchema,
 
   // Employees
   get_employees: schemas.GetEmployeesSchema,
@@ -90,6 +94,7 @@ const toolSchemaMap: Record<string, any> = {
   get_routing_by_part_number: schemas.GetRoutingByPartSchema,
   get_work_centers: schemas.QueryParamsSchema,
   get_work_center_by_code: schemas.GetWorkCenterByCodeSchema,
+  get_estimate_material_by_sub_part: schemas.GetEstimateMaterialBySubPartSchema,
 
   // General
   custom_api_call: schemas.CustomApiCallSchema,
@@ -124,7 +129,10 @@ export function registerTools(server: FastMCP, client: JobBOSS2Client) {
   // Register manual tools
   for (const tool of allTools) {
     const handler = allHandlers[tool.name];
-    const schema = toolSchemaMap[tool.name] || schemas.AnyObjectSchema;
+    const schema = toolSchemaMap[tool.name];
+    if (!schema) {
+      throw new Error(`Missing schema mapping for manual tool: ${tool.name}`);
+    }
 
     server.addTool({
       name: tool.name,

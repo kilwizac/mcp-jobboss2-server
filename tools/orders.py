@@ -1,3 +1,4 @@
+import asyncio
 from typing import Any, Dict, List, Optional, Union
 from fastmcp import FastMCP
 from jobboss2_api_client import JobBOSS2Client
@@ -190,26 +191,27 @@ def register_order_tools(mcp: FastMCP, client: JobBOSS2Client):
         includeRoutings: bool = True,
     ) -> Dict[str, Any]:
         """Retrieve an order with its line items and optionally routings in a single call. Returns a complete bundle for the order."""
-        # Fetch order header
         order_params = {"fields": fields} if fields else None
-        order = await client.api_call("GET", f"orders/{orderNumber}", params=order_params)
-        
-        # Fetch line items
         li_params = {"fields": lineItemFields} if lineItemFields else None
-        line_items = await client.api_call("GET", f"orders/{orderNumber}/order-line-items", params=li_params)
-        
-        # Optionally fetch routings
-        routings = []
+        requests = [
+            client.api_call("GET", f"orders/{orderNumber}", params=order_params),
+            client.api_call("GET", f"orders/{orderNumber}/order-line-items", params=li_params),
+        ]
         if includeRoutings:
             routing_params: Dict[str, Any] = {"orderNumber": orderNumber}
             if routingFields:
                 routing_params["fields"] = routingFields
-            routings = await client.api_call("GET", "order-routings", params=routing_params)
-        
+            requests.append(client.api_call("GET", "order-routings", params=routing_params))
+
+        results = await asyncio.gather(*requests)
+        order = results[0]
+        line_items = results[1]
+        routings = results[2] if includeRoutings else None
+
         return {
             "order": order,
             "lineItems": line_items,
-            "routings": routings if includeRoutings else None,
+            "routings": routings,
         }
 
     @mcp.tool()
@@ -222,11 +224,10 @@ def register_order_tools(mcp: FastMCP, client: JobBOSS2Client):
         overrides: Dict[str, Any] = None,
     ) -> Dict[str, Any]:
         """Create a new order from an existing quote, copying customer info and line items. Streamlines quote-to-order conversion."""
-        # Fetch the quote
-        quote = await client.api_call("GET", f"quotes/{quoteNumber}")
-        
-        # Fetch quote line items
-        all_quote_line_items = await client.api_call("GET", "quote-line-items", params={"quoteNumber": quoteNumber})
+        quote, all_quote_line_items = await asyncio.gather(
+            client.api_call("GET", f"quotes/{quoteNumber}"),
+            client.api_call("GET", "quote-line-items", params={"quoteNumber": quoteNumber}),
+        )
         
         # Filter line items if specific ones requested
         line_items_to_copy = all_quote_line_items

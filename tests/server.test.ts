@@ -2,6 +2,9 @@ import { JobBOSS2Client } from '../src/jobboss2-client';
 import { orderHandlers } from '../src/tools/orders';
 import { customerHandlers } from '../src/tools/customers';
 import { inventoryHandlers } from '../src/tools/inventory';
+import { employeeHandlers } from '../src/tools/employees';
+import { productionHandlers } from '../src/tools/production';
+import { generalHandlers } from '../src/tools/general';
 
 // Mock the client
 const mockClient = {
@@ -13,6 +16,10 @@ const mockClient = {
     getQuoteById: jest.fn(),
     getQuoteLineItems: jest.fn(),
     getCustomers: jest.fn(),
+    getJobMaterials: jest.fn(),
+    getSalespersons: jest.fn(),
+    getRoutings: jest.fn(),
+    getDocumentControls: jest.fn(),
     getPurchaseOrderByNumber: jest.fn(),
     getPurchaseOrderLineItems: jest.fn(),
     getPurchaseOrderReleases: jest.fn(),
@@ -116,6 +123,24 @@ describe('Server Handlers', () => {
     });
 
     describe('Inventory Handlers', () => {
+        it('get_job_materials should parse query params before calling client', async () => {
+            const args = { skip: 5, customFilter: 'x' };
+            const mockResult = [{ uniqueID: '1' }];
+            (mockClient.getJobMaterials as jest.Mock).mockResolvedValue(mockResult);
+
+            const result = await inventoryHandlers.get_job_materials(args, mockClient);
+
+            expect(mockClient.getJobMaterials).toHaveBeenCalledWith(args);
+            expect(result).toEqual(mockResult);
+        });
+
+        it('get_job_materials should reject invalid query params', async () => {
+            const args = { skip: 'bad-type' };
+
+            await expect(inventoryHandlers.get_job_materials(args, mockClient)).rejects.toThrow();
+            expect(mockClient.getJobMaterials).not.toHaveBeenCalled();
+        });
+
         it('get_po_bundle should fetch PO header, line items and releases in parallel', async () => {
             const args = { poNumber: 'PO1' };
             const mockPO = { poNumber: 'PO1' };
@@ -167,6 +192,33 @@ describe('Server Handlers', () => {
 
             expect(mockClient.getCustomers).toHaveBeenCalledWith(args);
             expect(result).toEqual(mockResult);
+        });
+    });
+
+    describe('Employee Handlers', () => {
+        it('get_salespersons should reject invalid query params', async () => {
+            const args = { take: 'bad-type' };
+
+            await expect(employeeHandlers.get_salespersons(args, mockClient)).rejects.toThrow();
+            expect(mockClient.getSalespersons).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('Production Handlers', () => {
+        it('get_routings should reject invalid query params', async () => {
+            const args = { skip: 'bad-type' };
+
+            await expect(productionHandlers.get_routings(args, mockClient)).rejects.toThrow();
+            expect(mockClient.getRoutings).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('General Handlers', () => {
+        it('get_document_controls should reject invalid query params', async () => {
+            const args = { take: 'bad-type' };
+
+            await expect(generalHandlers.get_document_controls(args, mockClient)).rejects.toThrow();
+            expect(mockClient.getDocumentControls).not.toHaveBeenCalled();
         });
     });
 });
