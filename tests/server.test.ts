@@ -281,7 +281,7 @@ describe('Server Handlers', () => {
 
             expect(mockClient.getPurchaseOrderByNumber).toHaveBeenCalledWith('PO1', undefined);
             expect(mockClient.getPurchaseOrderLineItems).toHaveBeenCalledWith({ purchaseOrderNumber: 'PO1' });
-            expect(mockClient.getPurchaseOrderReleases).toHaveBeenCalledWith({ purchaseOrderNumber: 'PO1' });
+            expect(mockClient.getPurchaseOrderReleases).toHaveBeenCalledWith({ PONumber: 'PO1' });
             expect(result).toEqual({
                 purchaseOrder: mockPO,
                 lineItems: mockLineItems,

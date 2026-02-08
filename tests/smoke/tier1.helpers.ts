@@ -80,9 +80,13 @@ export interface Tier1ResolutionResult {
     ambiguousKeys: string[];
 }
 
-const EXPECTED_TIER1_CANDIDATE_COUNT = 98;
+const EXPECTED_TIER1_CANDIDATE_COUNT = 97;
 const QUERY_KEYS = new Set(['fields', 'sort', 'skip', 'take']);
 const MUTATION_NAME_PATTERNS = [/^create_/i, /^update_/i, /^custom_api_call$/i, /^run_report$/i, /authenticate/i, /_set_/i, /_reset_/i];
+const EXCLUDED_TIER1_GET_NAMES = new Set([
+    // Requires requestId returned by run_report (POST), which is outside GET-only tier-one policy.
+    'get_report_status',
+]);
 const DEFAULT_BLOCKED_HOST_PATTERNS = [
     /(^|[.-])prod([.-]|$)/i,
     /(^|[.-])production([.-]|$)/i,
@@ -245,11 +249,11 @@ function isMutationLikeName(name: string): boolean {
 }
 
 function isManualTier1Name(name: string): boolean {
-    return name.startsWith('get_') && !isMutationLikeName(name);
+    return name.startsWith('get_') && !isMutationLikeName(name) && !EXCLUDED_TIER1_GET_NAMES.has(name);
 }
 
 function isGeneratedTier1Name(name: string): boolean {
-    return (name.startsWith('get_') || name.includes('_get_')) && !isMutationLikeName(name);
+    return (name.startsWith('get_') || name.includes('_get_')) && !isMutationLikeName(name) && !EXCLUDED_TIER1_GET_NAMES.has(name);
 }
 
 function unwrapToObjectSchema(schema: z.ZodTypeAny): z.ZodObject<any> | null {

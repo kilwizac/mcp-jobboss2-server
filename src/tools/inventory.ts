@@ -176,7 +176,7 @@ export const inventoryHandlers: Record<string, (args: any, client: JobBOSS2Clien
         const [purchaseOrder, lineItems, releases] = await Promise.all([
             client.getPurchaseOrderByNumber(poNumber, fields ? { fields } : undefined),
             client.getPurchaseOrderLineItems(lineItemParams),
-            includeReleases ? client.getPurchaseOrderReleases({ purchaseOrderNumber: poNumber }) : undefined,
+            includeReleases ? client.getPurchaseOrderReleases({ PONumber: poNumber }) : undefined,
         ]);
         
         return {

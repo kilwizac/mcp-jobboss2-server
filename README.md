@@ -44,6 +44,17 @@ This MCP server provides comprehensive access to JobBOSS2 APIs:
 bun run start
 ```
 
+### Read-Only Safety Mode
+
+If you need to prevent writes in a shared ERP environment, enable runtime read-only mode:
+
+```bash
+JOBBOSS2_READ_ONLY_MODE=1 bun run start
+```
+
+When enabled, mutation tools (`create_*`, `update_*`, `run_report`, auth/set/reset generated mutators) are blocked.
+`custom_api_call` still allows `GET`, but blocks `POST`/`PUT`/`PATCH`/`DELETE`.
+
 ## Tier-One Smoke Test (Read-Only, Staging Only)
 
 Tier-one smoke validates **read-only GET tools** against a staging tenant with strict host guardrails.
@@ -66,6 +77,7 @@ Required environment variables:
 
 Optional environment variables:
 
+- `JOBBOSS2_READ_ONLY_MODE` (`1`/`true`/`yes`/`on` to block runtime write operations)
 - `SMOKE_BLOCKED_HOST_PATTERNS` (comma-separated patterns; merged with default production-like host blocks)
 - `SMOKE_TIER1_SEEDS_FILE` (path to JSON seed values for required detail-tool IDs)
 - `API_TIMEOUT` (milliseconds, default `30000`)
@@ -91,7 +103,9 @@ Seed file format (`SMOKE_TIER1_SEEDS_FILE`):
 Notes:
 
 - Tool-specific seeds take precedence over discovered values and global seeds.
+- A starter seed file for staging smoke runs is available at `tests/smoke/tier1.seeds.json`.
 - If a required key cannot be resolved deterministically, the smoke run fails.
+- `get_report_status` is excluded from tier-one because it requires a `requestId` produced by `run_report` (POST).
 - A JSON report is written to `tmp/tier1-smoke-report.json`.
 
 ## Available Tools

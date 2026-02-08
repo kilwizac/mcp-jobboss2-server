@@ -262,6 +262,37 @@ export class JobBOSS2Client {
     return response.data?.Data ?? response.data;
   }
 
+  private getErrorStatusCode(error: unknown): number | null {
+    if (!(error instanceof Error)) {
+      return null;
+    }
+
+    const match = error.message.match(/:\s*(\d{3})\b/);
+    if (!match) {
+      return null;
+    }
+
+    const statusCode = Number.parseInt(match[1], 10);
+    return Number.isFinite(statusCode) ? statusCode : null;
+  }
+
+  private shouldRetryWithListFallback(error: unknown): boolean {
+    const statusCode = this.getErrorStatusCode(error);
+    return statusCode === 404 || statusCode === 405;
+  }
+
+  private pickFirstRecord<T>(value: unknown): T | null {
+    if (Array.isArray(value)) {
+      return (value[0] as T | undefined) ?? null;
+    }
+
+    if (value && typeof value === 'object') {
+      return value as T;
+    }
+
+    return null;
+  }
+
   // Order Operations
   async getOrders(params?: QueryParams): Promise<Order[]> {
     const response = await this.client.get('/api/v1/orders', { params });
@@ -285,13 +316,47 @@ export class JobBOSS2Client {
 
   // Order Line Item Operations
   async getOrderLineItems(orderNumber: string, params?: QueryParams): Promise<OrderLineItem[]> {
-    const response = await this.client.get(`/api/v1/orders/${encodeURIComponent(orderNumber)}/order-line-items`, { params });
-    return this.extractData(response);
+    try {
+      const response = await this.client.get(`/api/v1/orders/${encodeURIComponent(orderNumber)}/order-line-items`, { params });
+      return this.extractData(response);
+    } catch (error) {
+      if (!this.shouldRetryWithListFallback(error)) {
+        throw error;
+      }
+
+      const fallbackParams: QueryParams = {
+        ...(params ?? {}),
+        orderNumber,
+      };
+      const fallbackResponse = await this.client.get('/api/v1/order-line-items', { params: fallbackParams });
+      return this.extractData(fallbackResponse);
+    }
   }
 
   async getOrderLineItemById(orderNumber: string, itemNumber: number, params?: QueryParams): Promise<OrderLineItem> {
-    const response = await this.client.get(`/api/v1/orders/${encodeURIComponent(orderNumber)}/order-line-items/${encodeURIComponent(String(itemNumber))}`, { params });
-    return this.extractData(response);
+    try {
+      const response = await this.client.get(`/api/v1/orders/${encodeURIComponent(orderNumber)}/order-line-items/${encodeURIComponent(String(itemNumber))}`, { params });
+      return this.extractData(response);
+    } catch (error) {
+      if (!this.shouldRetryWithListFallback(error)) {
+        throw error;
+      }
+
+      const fallbackParams: QueryParams = {
+        ...(params ?? {}),
+        orderNumber,
+        itemNumber: String(itemNumber),
+        take: 1,
+      };
+      const fallbackResponse = await this.client.get('/api/v1/order-line-items', { params: fallbackParams });
+      const fallbackData = this.extractData(fallbackResponse);
+      const firstRecord = this.pickFirstRecord<OrderLineItem>(fallbackData);
+      if (firstRecord) {
+        return firstRecord;
+      }
+
+      throw new Error(`Order line item not found for order ${orderNumber}, item ${itemNumber}`);
+    }
   }
 
   async createOrderLineItem(orderNumber: string, itemData: Partial<OrderLineItem>): Promise<OrderLineItem> {
@@ -396,8 +461,30 @@ export class JobBOSS2Client {
   }
 
   async getMaterialByPartNumber(partNumber: string, params?: QueryParams): Promise<Material> {
-    const response = await this.client.get(`/api/v1/materials/${encodeURIComponent(partNumber)}`, { params });
-    return this.extractData(response);
+    try {
+      const response = await this.client.get(`/api/v1/materials/${encodeURIComponent(partNumber)}`, { params });
+      return this.extractData(response);
+    } catch (error) {
+      if (!this.shouldRetryWithListFallback(error)) {
+        throw error;
+      }
+
+      for (const key of ['partNumber', 'subPartNumber'] as const) {
+        const fallbackParams: QueryParams = {
+          ...(params ?? {}),
+          [key]: partNumber,
+          take: 1,
+        };
+        const fallbackResponse = await this.client.get('/api/v1/materials', { params: fallbackParams });
+        const fallbackData = this.extractData(fallbackResponse);
+        const firstRecord = this.pickFirstRecord<Material>(fallbackData);
+        if (firstRecord) {
+          return firstRecord;
+        }
+      }
+
+      throw new Error(`Material not found for part number ${partNumber}`);
+    }
   }
 
   async getBinLocations(params?: QueryParams): Promise<BinLocation[]> {
@@ -412,8 +499,30 @@ export class JobBOSS2Client {
   }
 
   async getEmployeeById(employeeID: string, params?: QueryParams): Promise<Employee> {
-    const response = await this.client.get(`/api/v1/employees/${encodeURIComponent(employeeID)}`, { params });
-    return this.extractData(response);
+    try {
+      const response = await this.client.get(`/api/v1/employees/${encodeURIComponent(employeeID)}`, { params });
+      return this.extractData(response);
+    } catch (error) {
+      if (!this.shouldRetryWithListFallback(error)) {
+        throw error;
+      }
+
+      for (const key of ['employeeCode', 'uniqueID'] as const) {
+        const fallbackParams: QueryParams = {
+          ...(params ?? {}),
+          [key]: employeeID,
+          take: 1,
+        };
+        const fallbackResponse = await this.client.get('/api/v1/employees', { params: fallbackParams });
+        const fallbackData = this.extractData(fallbackResponse);
+        const firstRecord = this.pickFirstRecord<Employee>(fallbackData);
+        if (firstRecord) {
+          return firstRecord;
+        }
+      }
+
+      throw new Error(`Employee not found for employee ID ${employeeID}`);
+    }
   }
 
   // Estimate Operations (Part Master)
@@ -557,11 +666,35 @@ export class JobBOSS2Client {
     itemNumber: number | string,
     params?: QueryParams
   ): Promise<PurchaseOrderLineItem> {
-    const response = await this.client.get(
-      `/api/v1/purchase-order-line-items/${encodeURIComponent(purchaseOrderNumber)}/${encodeURIComponent(partNumber)}/${encodeURIComponent(String(itemNumber))}`,
-      { params }
-    );
-    return this.extractData(response);
+    try {
+      const response = await this.client.get(
+        `/api/v1/purchase-order-line-items/${encodeURIComponent(purchaseOrderNumber)}/${encodeURIComponent(partNumber)}/${encodeURIComponent(String(itemNumber))}`,
+        { params }
+      );
+      return this.extractData(response);
+    } catch (error) {
+      if (!this.shouldRetryWithListFallback(error)) {
+        throw error;
+      }
+
+      const fallbackParams: QueryParams = {
+        ...(params ?? {}),
+        purchaseOrderNumber,
+        partNumber,
+        itemNumber: String(itemNumber),
+        take: 1,
+      };
+      const fallbackResponse = await this.client.get('/api/v1/purchase-order-line-items', { params: fallbackParams });
+      const fallbackData = this.extractData(fallbackResponse);
+      const firstRecord = this.pickFirstRecord<PurchaseOrderLineItem>(fallbackData);
+      if (firstRecord) {
+        return firstRecord;
+      }
+
+      throw new Error(
+        `Purchase order line item not found for PO ${purchaseOrderNumber}, part ${partNumber}, item ${itemNumber}`
+      );
+    }
   }
 
   async getPurchaseOrderReleases(params?: QueryParams): Promise<PurchaseOrderRelease[]> {

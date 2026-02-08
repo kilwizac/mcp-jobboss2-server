@@ -55,7 +55,7 @@ describe('Tier-One smoke preflight guardrails', () => {
 describe('Tier-One smoke tool selection', () => {
     it('selects only GET-classified tools and excludes mutation-like names', () => {
         const tools = buildTier1ToolInventory();
-        expect(tools).toHaveLength(98);
+        expect(tools).toHaveLength(97);
 
         const invalidByPattern = tools.filter((tool) => {
             const looksLikeGet = tool.name.startsWith('get_') || tool.name.includes('_get_');
@@ -64,6 +64,7 @@ describe('Tier-One smoke tool selection', () => {
         });
 
         expect(invalidByPattern).toEqual([]);
+        expect(tools.some((tool) => tool.name === 'get_report_status')).toBe(false);
     });
 });
 

@@ -164,6 +164,136 @@ describe('JobBOSS2Client', () => {
         expect(result).toEqual({ customerCode: 'ACME INC' });
     });
 
+    it('should fall back to list query when nested order line items endpoint is not allowed', async () => {
+        nock('https://api.jobboss2.com')
+            .post('/oauth/token')
+            .reply(200, {
+                access_token: 'mock-access-token',
+                expires_in: 3600,
+            });
+
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/orders/ORD1/order-line-items')
+            .query(true)
+            .reply(405, { title: 'Method Not Allowed' });
+
+        const fallbackLineItems = [{ orderNumber: 'ORD1', itemNumber: 2 }];
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/order-line-items')
+            .query((query) => query.orderNumber === 'ORD1' && String(query.take) === '1')
+            .reply(200, { Data: fallbackLineItems });
+
+        const result = await client.getOrderLineItems('ORD1', { take: 1 });
+        expect(result).toEqual(fallbackLineItems);
+    });
+
+    it('should fall back to list query when nested order line item endpoint is not allowed', async () => {
+        nock('https://api.jobboss2.com')
+            .post('/oauth/token')
+            .reply(200, {
+                access_token: 'mock-access-token',
+                expires_in: 3600,
+            });
+
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/orders/ORD1/order-line-items/2')
+            .query(true)
+            .reply(405, { title: 'Method Not Allowed' });
+
+        const fallbackLineItem = { orderNumber: 'ORD1', itemNumber: 2 };
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/order-line-items')
+            .query(
+                (query) =>
+                    query.orderNumber === 'ORD1' &&
+                    String(query.itemNumber) === '2' &&
+                    String(query.take) === '1'
+            )
+            .reply(200, { Data: [fallbackLineItem] });
+
+        const result = await client.getOrderLineItemById('ORD1', 2);
+        expect(result).toEqual(fallbackLineItem);
+    });
+
+    it('should fall back to employee list query when employee detail endpoint is not allowed', async () => {
+        nock('https://api.jobboss2.com')
+            .post('/oauth/token')
+            .reply(200, {
+                access_token: 'mock-access-token',
+                expires_in: 3600,
+            });
+
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/employees/1')
+            .query(true)
+            .reply(405, { title: 'Method Not Allowed' });
+
+        const fallbackEmployee = { employeeCode: 1, employeeName: 'Dummy' };
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/employees')
+            .query((query) => String(query.employeeCode) === '1' && String(query.take) === '1')
+            .reply(200, { Data: [fallbackEmployee] });
+
+        const result = await client.getEmployeeById('1');
+        expect(result).toEqual(fallbackEmployee);
+    });
+
+    it('should fall back to materials list query when material detail endpoint is unavailable', async () => {
+        nock('https://api.jobboss2.com')
+            .post('/oauth/token')
+            .reply(200, {
+                access_token: 'mock-access-token',
+                expires_in: 3600,
+            });
+
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/materials/ALPA%2010042')
+            .query(true)
+            .reply(404, { title: 'Not Found' });
+
+        const fallbackMaterial = { partNumber: 'ALPA 10042', subPartNumber: 'ALPA 10042 MATERIAL' };
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/materials')
+            .query((query) => query.partNumber === 'ALPA 10042' && String(query.take) === '1')
+            .reply(200, { Data: [fallbackMaterial] });
+
+        const result = await client.getMaterialByPartNumber('ALPA 10042');
+        expect(result).toEqual(fallbackMaterial);
+    });
+
+    it('should fall back to PO line item list query when keyed detail endpoint is not allowed', async () => {
+        nock('https://api.jobboss2.com')
+            .post('/oauth/token')
+            .reply(200, {
+                access_token: 'mock-access-token',
+                expires_in: 3600,
+            });
+
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/purchase-order-line-items/PO1/PART1/1')
+            .query(true)
+            .reply(405, { title: 'Method Not Allowed' });
+
+        const fallbackLineItem = {
+            purchaseOrderNumber: 'PO1',
+            partNumber: 'PART1',
+            itemNumber: 1,
+        };
+        nock('https://api.jobboss2.com')
+            .get('/api/v1/purchase-order-line-items')
+            .query(
+                (query) =>
+                    query.purchaseOrderNumber === 'PO1' &&
+                    query.partNumber === 'PART1' &&
+                    String(query.itemNumber) === '1' &&
+                    String(query.take) === '1'
+            )
+            .reply(200, { Data: [fallbackLineItem] });
+
+        const result = await client.getPurchaseOrderLineItem('PO1', 'PART1', 1);
+        expect(result).toEqual(fallbackLineItem);
+    });
+
     it('should schedule token refresh after fetching token', async () => {
         nock('https://api.jobboss2.com')
             .post('/oauth/token')

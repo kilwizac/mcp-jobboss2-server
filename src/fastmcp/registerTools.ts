@@ -11,6 +11,12 @@ import { productionTools, productionHandlers } from "../tools/production.js";
 import { employeeTools, employeeHandlers } from "../tools/employees.js";
 import { generalTools, generalHandlers } from "../tools/general.js";
 import { generatedToolConfigs } from "../tools/generated.js";
+import {
+  READ_ONLY_MODE_ENV_VAR,
+  isMutationToolName,
+  isMutatingHttpMethod,
+  isReadOnlyModeEnabled,
+} from "./mutationPolicy.js";
 
 export const toolSchemaMap: Record<string, any> = {
   // Orders
@@ -127,6 +133,7 @@ export const allHandlers = {
 
 export function registerTools(server: FastMCP, client: JobBOSS2Client) {
   const registeredToolNames = new Set<string>();
+  const readOnlyModeEnabled = isReadOnlyModeEnabled(process.env);
   const formatResultText = (result: unknown): string => {
     if (typeof result === "string") {
       return result;
@@ -135,6 +142,29 @@ export function registerTools(server: FastMCP, client: JobBOSS2Client) {
       return "null";
     }
     return JSON.stringify(result);
+  };
+  const getReadOnlyBlockReason = (toolName: string, args: unknown): string | null => {
+    if (!readOnlyModeEnabled) {
+      return null;
+    }
+
+    if (toolName === "custom_api_call") {
+      const method = typeof args === "object" && args && "method" in args
+        ? String((args as Record<string, unknown>).method ?? "")
+        : "";
+
+      if (isMutatingHttpMethod(method)) {
+        return `Write operations are disabled by ${READ_ONLY_MODE_ENV_VAR} (blocked method: ${method.toUpperCase()})`;
+      }
+
+      return null;
+    }
+
+    if (isMutationToolName(toolName)) {
+      return `Write operations are disabled by ${READ_ONLY_MODE_ENV_VAR} (blocked tool: ${toolName})`;
+    }
+
+    return null;
   };
 
   const registerTool = (
@@ -154,6 +184,14 @@ export function registerTools(server: FastMCP, client: JobBOSS2Client) {
       description,
       parameters: schema,
       execute: async (args) => {
+        const readOnlyBlockReason = getReadOnlyBlockReason(name, args);
+        if (readOnlyBlockReason) {
+          return {
+            content: [{ type: "text", text: `Error: ${readOnlyBlockReason}` }],
+            isError: true,
+          };
+        }
+
         try {
           const result = await handler(args);
           const text = successMessage ? successMessage(args) : formatResultText(result);

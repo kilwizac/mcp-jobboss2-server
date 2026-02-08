@@ -1,0 +1,103 @@
+{
+  "tools": {
+    "get_attendance_ticket_by_id": {
+      "ticketDate": "2019-08-10T05:00:00Z",
+      "employeeCode": 1
+    },
+    "get_contact_by_id": {
+      "object": "CUST",
+      "contactCode": "TYSON FOODS",
+      "contact": "Mark Gibson"
+    },
+    "get_corrective_preventive_action_by_number": {
+      "correctiveActionNumber": "10001"
+    },
+    "get_employee_by_id": {
+      "employeeID": "1"
+    },
+    "get_estimate_by_part_number": {
+      "partNumber": "#1 JENSEN IRON"
+    },
+    "get_estimate_material_by_sub_part": {
+      "partNumber": "ALPA 10042",
+      "subPartNumber": "ALPA 10042 MATERIAL"
+    },
+    "get_job_material_by_id": {
+      "uniqueID": "6656"
+    },
+    "get_job_requirement_by_id": {
+      "uniqueID": "272642"
+    },
+    "get_material_by_part_number": {
+      "partNumber": "ALPA 10042"
+    },
+    "get_operation_code_by_code": {
+      "operationCode": "DEFAULT"
+    },
+    "get_order_bundle": {
+      "orderNumber": "0119"
+    },
+    "get_order_by_id": {
+      "orderNumber": "0119"
+    },
+    "get_order_line_item_by_id": {
+      "orderNumber": "0119",
+      "itemNumber": 2
+    },
+    "get_order_line_items": {
+      "orderNumber": "0119"
+    },
+    "get_order_release_by_id": {
+      "orderNumber": "0119",
+      "itemNumber": "2",
+      "uniqueID": "4382"
+    },
+    "get_order_routing": {
+      "orderNumber": "9067",
+      "itemNumber": 1,
+      "stepNumber": 20
+    },
+    "get_po_bundle": {
+      "poNumber": "0204ZKILWIN"
+    },
+    "get_product_code": {
+      "productCode": "ANGLE"
+    },
+    "get_purchase_order_by_number": {
+      "poNumber": "0204ZKILWIN"
+    },
+    "get_purchase_order_line_item": {
+      "purchaseOrderNumber": "0204ZKILWIN",
+      "partNumber": "5819K129",
+      "itemNumber": 1
+    },
+    "get_quote_line_item_by_id": {
+      "quoteNumber": "25000",
+      "itemNumber": 1
+    },
+    "get_reason_code_by_id": {
+      "uniqueID": 39
+    },
+    "get_routing_by_part_number": {
+      "partNumber": "#1 JENSEN IRON",
+      "stepNumber": "10"
+    },
+    "get_shipping_address_by_id": {
+      "customerCode": "111 SALVAGE",
+      "location": "MAIN"
+    },
+    "get_terms_by_code": {
+      "termsCode": "NET 30 EXW"
+    },
+    "get_time_ticket_by_id": {
+      "ticketDate": "2018-01-25T06:00:00Z",
+      "employeeCode": 21
+    },
+    "get_vendor_by_code": {
+      "vendorCode": "1000BULBS"
+    },
+    "get_work_center_by_code": {
+      "workCenter": "100"
+    }
+  }
+}
