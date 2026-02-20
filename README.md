@@ -44,6 +44,95 @@ This MCP server provides comprehensive access to JobBOSS2 APIs:
 bun run start
 ```
 
+By default the server uses the **stdio** transport (suitable for Claude Desktop, Cursor, and most MCP clients). You can switch to HTTP/SSE-based transports via environment variables — see [Transport Configuration](#transport-configuration) below.
+
+### Transport Configuration
+
+The transport is controlled by the `MCP_TRANSPORT` environment variable (default: `stdio`):
+
+| Value | Description |
+|-------|-------------|
+| `stdio` | Standard I/O (default) — for local desktop clients |
+| `http` or `httpStream` | Streamable HTTP transport — for networked/remote usage |
+| `sse` | Alias for `httpStream` — same endpoint, for SSE-preferring clients |
+
+The port for HTTP/SSE transports is set via `MCP_PORT` (default: `8000`) or `PORT`.
+
+```bash
+# stdio (default)
+bun run start
+
+# HTTP Streamable transport on port 8000
+MCP_TRANSPORT=http bun run start
+
+# SSE transport on a custom port
+MCP_TRANSPORT=sse MCP_PORT=3000 bun run start
+```
+
+### MCP Client Configuration
+
+#### Claude Desktop (`claude_desktop_config.json`)
+
+```json
+{
+  "mcpServers": {
+    "jobboss2": {
+      "command": "bun",
+      "args": ["run", "start"],
+      "cwd": "/path/to/mcp-jobboss2-server",
+      "env": {
+        "JOBBOSS2_API_URL": "https://your-instance.jobboss2.com",
+        "JOBBOSS2_API_KEY": "your-api-key",
+        "JOBBOSS2_API_SECRET": "your-api-secret",
+        "JOBBOSS2_OAUTH_TOKEN_URL": "https://your-oauth-url/token"
+      }
+    }
+  }
+}
+```
+
+#### VS Code / Cursor (`.vscode/mcp.json`)
+
+```json
+{
+  "servers": {
+    "jobboss2": {
+      "command": "bun",
+      "args": ["run", "start"],
+      "cwd": "/path/to/mcp-jobboss2-server",
+      "env": {
+        "JOBBOSS2_API_URL": "https://your-instance.jobboss2.com",
+        "JOBBOSS2_API_KEY": "your-api-key",
+        "JOBBOSS2_API_SECRET": "your-api-secret",
+        "JOBBOSS2_OAUTH_TOKEN_URL": "https://your-oauth-url/token"
+      }
+    }
+  }
+}
+```
+
+#### HTTP/SSE Mode (remote or networked usage)
+
+Start the server in HTTP mode:
+```bash
+MCP_TRANSPORT=http MCP_PORT=8000 bun run start
+```
+
+The `httpStream` transport exposes two endpoints on the same port:
+- **Streamable HTTP** (recommended): `http://localhost:8000/mcp`
+- **SSE** (legacy clients): `http://localhost:8000/sse`
+
+Configure your client with the server URL instead of a command:
+```json
+{
+  "mcpServers": {
+    "jobboss2": {
+      "url": "http://localhost:8000/mcp"
+    }
+  }
+}
+```
+
 ### Read-Only Safety Mode
 
 If you need to prevent writes in a shared ERP environment, enable runtime read-only mode:

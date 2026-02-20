@@ -6,6 +6,10 @@ dist/
 build/
 *.tsbuildinfo
 
+# Lock files (project uses bun.lock)
+package-lock.json
+yarn.lock
+
 # Environment variables
 .env
 .env.local

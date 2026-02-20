@@ -35,8 +35,17 @@ const server = new FastMCP({
 registerTools(server, jobboss2Client);
 
 async function runServer() {
-  await server.start({ transportType: "stdio" });
-  console.error('JobBOSS2 FastMCP Server running on stdio');
+  const transport = process.env.MCP_TRANSPORT || "stdio";
+  const portRaw = parseInt(process.env.MCP_PORT || process.env.PORT || "8000", 10);
+  const port = isNaN(portRaw) ? 8000 : portRaw;
+
+  if (transport === "http" || transport === "httpStream" || transport === "sse") {
+    await server.start({ transportType: "httpStream", httpStream: { port } });
+    console.error(`JobBOSS2 FastMCP Server running on HTTP (Streamable HTTP) at port ${port}`);
+  } else {
+    await server.start({ transportType: "stdio" });
+    console.error('JobBOSS2 FastMCP Server running on stdio');
+  }
 }
 
 runServer().catch((error) => {
