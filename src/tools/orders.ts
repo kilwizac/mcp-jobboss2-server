@@ -164,22 +164,19 @@ export const orderHandlers: Record<string, (args: any, client: JobBOSS2Client) =
     get_order_bundle: async (args, client) => {
         const { orderNumber, fields, lineItemFields, routingFields, includeRoutings = true } = GetOrderBundleSchema.parse(args);
         
-        const [order, lineItems] = await Promise.all([
+        const routingParams: any = includeRoutings ? { orderNumber } : undefined;
+        if (routingParams && routingFields) routingParams.fields = routingFields;
+
+        const [order, lineItems, routings] = await Promise.all([
             client.getOrderById(orderNumber, fields ? { fields } : undefined),
             client.getOrderLineItems(orderNumber, lineItemFields ? { fields: lineItemFields } : undefined),
+            includeRoutings ? client.getOrderRoutings(routingParams) : undefined,
         ]);
-
-        let routings: any[] | undefined;
-        if (includeRoutings && Array.isArray(lineItems)) {
-            const routingParams: any = { orderNumber };
-            if (routingFields) routingParams.fields = routingFields;
-            routings = await client.getOrderRoutings(routingParams);
-        }
         
         return {
             order,
             lineItems,
-            routings: includeRoutings && Array.isArray(lineItems) ? routings : undefined,
+            routings: includeRoutings ? routings : undefined,
         };
     },
     create_order_from_quote: async (args, client) => {

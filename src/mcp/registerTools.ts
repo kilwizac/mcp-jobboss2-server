@@ -131,17 +131,33 @@ export const allHandlers = {
   ...generalHandlers,
 };
 
+export const MAX_RESPONSE_CHARS = 800_000;
+
 export function registerTools(server: McpServer, client: JobBOSS2Client) {
   const registeredToolNames = new Set<string>();
   const readOnlyModeEnabled = isReadOnlyModeEnabled(process.env);
   const formatResultText = (result: unknown): string => {
     if (typeof result === "string") {
-      return result;
+      return result.length > MAX_RESPONSE_CHARS
+        ? result.slice(0, MAX_RESPONSE_CHARS) + `\n...[truncated – response exceeded ${MAX_RESPONSE_CHARS} characters. Use 'fields', 'take', or filters to narrow results.]`
+        : result;
     }
     if (result === undefined) {
       return "null";
     }
-    return JSON.stringify(result);
+    const json = JSON.stringify(result);
+    if (json.length > MAX_RESPONSE_CHARS) {
+      if (Array.isArray(result) && result.length > 1) {
+        const totalCount = result.length;
+        const avgItemSize = json.length / totalCount;
+        const estimatedFit = Math.max(1, Math.floor(MAX_RESPONSE_CHARS / avgItemSize));
+        const items = result.slice(0, estimatedFit);
+        const serialized = JSON.stringify(items);
+        return serialized + `\n...[${items.length} of ${totalCount} records shown. Use 'take', 'skip', 'fields', or filters to narrow results.]`;
+      }
+      return json.slice(0, MAX_RESPONSE_CHARS) + `\n...[truncated – response exceeded ${MAX_RESPONSE_CHARS} characters. Use 'fields' or filters to narrow results.]`;
+    }
+    return json;
   };
   const getReadOnlyBlockReason = (toolName: string, args: unknown): string | null => {
     if (!readOnlyModeEnabled) {
