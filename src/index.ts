@@ -57,7 +57,16 @@ async function runServer() {
   }
 }
 
+function shutdown() {
+  jobboss2Client.destroy();
+  process.exit(0);
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+
 runServer().catch((error) => {
   console.error('Fatal error running server:', error);
+  jobboss2Client.destroy();
   process.exit(1);
 });
