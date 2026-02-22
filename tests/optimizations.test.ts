@@ -93,22 +93,11 @@ describe('Response truncation', () => {
 });
 
 describe('Order bundle parallel fetch', () => {
-    it('should fetch order, line items, and routings in parallel', async () => {
-        const callOrder: string[] = [];
-
+    it('should fetch order, line items, and routings in a single Promise.all', async () => {
         const client = {
-            getOrderById: jest.fn().mockImplementation(async () => {
-                callOrder.push('getOrderById');
-                return { orderNumber: '1001' };
-            }),
-            getOrderLineItems: jest.fn().mockImplementation(async () => {
-                callOrder.push('getOrderLineItems');
-                return [{ itemNumber: 1 }];
-            }),
-            getOrderRoutings: jest.fn().mockImplementation(async () => {
-                callOrder.push('getOrderRoutings');
-                return [{ stepNumber: 10 }];
-            }),
+            getOrderById: jest.fn().mockResolvedValue({ orderNumber: '1001' }),
+            getOrderLineItems: jest.fn().mockResolvedValue([{ itemNumber: 1 }]),
+            getOrderRoutings: jest.fn().mockResolvedValue([{ stepNumber: 10 }]),
         };
 
         const result = await orderHandlers.get_order_bundle(

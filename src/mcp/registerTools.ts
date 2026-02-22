@@ -147,14 +147,12 @@ export function registerTools(server: McpServer, client: JobBOSS2Client) {
     }
     const json = JSON.stringify(result);
     if (json.length > MAX_RESPONSE_CHARS) {
-      if (Array.isArray(result)) {
+      if (Array.isArray(result) && result.length > 1) {
         const totalCount = result.length;
-        let items = result;
-        let serialized = JSON.stringify(items);
-        while (serialized.length > MAX_RESPONSE_CHARS && items.length > 1) {
-          items = items.slice(0, Math.ceil(items.length / 2));
-          serialized = JSON.stringify(items);
-        }
+        const avgItemSize = json.length / totalCount;
+        const estimatedFit = Math.max(1, Math.floor(MAX_RESPONSE_CHARS / avgItemSize));
+        const items = result.slice(0, estimatedFit);
+        const serialized = JSON.stringify(items);
         return serialized + `\n...[${items.length} of ${totalCount} records shown. Use 'take', 'skip', 'fields', or filters to narrow results.]`;
       }
       return json.slice(0, MAX_RESPONSE_CHARS) + `\n...[truncated – response exceeded ${MAX_RESPONSE_CHARS} characters. Use 'fields' or filters to narrow results.]`;
